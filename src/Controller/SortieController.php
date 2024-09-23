@@ -124,18 +124,6 @@ class SortieController extends AbstractController
         return $this->redirectToRoute('app_sortie');
     }
 
-
-    #[Route('/sorties/{id}', name: 'app_sorties_show')]
-    public function show(int $id, SortieRepository $sortieRepository,): Response
-    {
-
-        $sortie = $sortieRepository->find($id);
-
-        return $this->render('sortie/show.html.twig', [
-            'sortie' => $sortie,
-        ]);
-    }
-
     #[Route('/sorties/{id<\d+>}/detail', name: 'app_sorties_detail')]
     public function detail(int $id, SortieRepository $repo): Response
     {
@@ -154,6 +142,41 @@ class SortieController extends AbstractController
 
         ]);
     }
+
+    #[Route('sorties/{id<\d+>}/update', name: 'app_sorties_update', methods: ['GET', 'POST'])]
+    public function update(Request $request,
+                           Sortie $sortie,
+                           sortieRepository $sortieRepo ,
+                           etatRepository $etatRepository,
+                           EntityManagerInterface $em//,
+                           //SluggerInterface $slugger,
+                           //#[Autowire('%kernel.project_dir%/public/uploads/wish')] string $wishesDirectory
+    ): Response
+    {
+        $sortieForm = $this->createForm(SortieType::class, $sortie);
+
+        //Submit and Validate
+        $sortieForm->handleRequest($request);
+        if ($sortieForm->isSubmitted() && $sortieForm->isValid()) {
+            if ($request->request->has('delete')) {
+                $sortie->setEtat($etatRepository->findEtatAnnulee());
+            } elseif ($request->request->has('publish')) {
+                $sortie->setEtat($etatRepository->findEtatPubliee());
+            }
+            // Persist
+            $em->flush();
+            //Add Succes notif
+            //$this->addFlash('success', 'La sortie a été modifié avec succès');
+            return $this->redirectToRoute('app_sorties_detail', ['id' => $sortie->getId()]);
+        }
+
+        return $this->render('sortie/update.html.twig', [
+            'title' => 'Modification d\'une sortie',
+            'form' => $sortieForm,
+            'sortie' => $sortie
+        ]);
+    }
+
 
 }
 

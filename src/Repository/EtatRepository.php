@@ -36,4 +36,11 @@ class EtatRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['libelle' => 'Ouverte']);
     }
+    /**
+     * Retourne l'état "Annulée"
+     */
+    public function findEtatAnnulee(): ?Etat
+    {
+        return $this->findOneBy(['libelle' => 'Annulée']);
+    }
 }

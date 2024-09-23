@@ -99,7 +99,7 @@
                     </td>
                     <td>{{ sortie.organisateur.nom }}</td>
                     <td>
-                        <a href="{{ path('app_sorties_show', {id: sortie.id}) }}" class="btn btn-info btn-sm">Afficher</a>
+                        <a href="{{ path('app_sorties_detail', {id: sortie.id}) }}" class="btn btn-info btn-sm">Afficher</a>
                         {% if sortie.etat.libelle == 'Ouverte' %}
                             {% if app.user in sortie.inscrits %}
                                     <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Se désister</a>
@@ -109,6 +109,9 @@
 
                         {% elseif sortie.etat.libelle == 'En cours' %}
                             <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Se désister</a>
+
+                        {% elseif (sortie.etat.libelle == 'En création' and  app.user.administrateur) %}
+                                <a href="{{ path('app_sorties_update', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
                         {% endif %}
                     </td>
                 </tr>
