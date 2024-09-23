@@ -16,7 +16,7 @@ class SortieRepository extends ServiceEntityRepository
         parent::__construct($registry, Sortie::class);
     }
 
-    public function searchSorties(array $filters = [])
+    public function searchSorties(array $filters = [], EtatRepository $etatRepository)
     {
         $qb = $this->createQueryBuilder('s');
 
@@ -46,18 +46,22 @@ class SortieRepository extends ServiceEntityRepository
         }
 
         if (!empty($filters['inscrit'])) {
-            $qb->andWhere('s.inscrits = :inscrit')
-                ->setParameter('inscrit', $filters['inscrit']);
+            $qb->andWhere(':user MEMBER OF s.inscrits')
+                ->setParameter('user', $filters['inscrit']);
         }
 
         if (!empty($filters['nonInscrit'])) {
-            $qb->andWhere('s.inscrits != :nonInscrit')
-                ->setParameter('nonInscrit', $filters['nonInscrit']);
+            $qb->andWhere(':user NOT MEMBER OF s.inscrits')
+                ->setParameter('user', $filters['nonInscrit']);
         }
 
         if (!empty($filters['terminees'])) {
-            $qb->andWhere('s.etat = :terminee')
-                ->setParameter('terminee', 'Clôturée');
+            $cloture = $etatRepository->findEtatFinish();
+
+            if ($cloture) {
+                $qb->andWhere('s.etat = :terminee')
+                    ->setParameter('terminee', $cloture);
+            }
         }
 
         return $qb->getQuery()->getResult();

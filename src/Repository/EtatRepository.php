@@ -24,6 +24,11 @@ class EtatRepository extends ServiceEntityRepository
         return $this->findOneBy(['libelle' => 'En création']);
     }
 
+    public function findEtatFinish(): ?Etat
+    {
+        return $this->findOneBy(['libelle' => 'Clôturée']);
+    }
+
     /**
      * Retourne l'état "Publiée"
      */

@@ -17,24 +17,26 @@ use Symfony\Component\Routing\Annotation\Route;
 class SortieController extends AbstractController
 {
     #[Route('/sortie', name: 'app_sortie')]
-    public function index(Request $request, SortieRepository $sortieRepository, CampusRepository $campusRepository): Response
+    public function index(Request $request, SortieRepository $sortieRepository, CampusRepository $campusRepository, EtatRepository $etatRepository): Response
     {
+        // Récupérer l'utilisateur connecté
+        $user = $this->getUser();
+
         // Récupérer les filtres depuis la requête GET
         $filters = [
             'campus' => $request->query->get('campus'),
             'nom' => $request->query->get('nom'),
             'dateDebut' => $request->query->get('dateDebut'),
             'dateFin' => $request->query->get('dateFin'),
-            'organisateur' => $request->query->get('organisateur'),
-            'inscrit' => $request->query->get('inscrit'),
-            'nonInscrit' => $request->query->get('nonInscrit'),
+            'organisateur' => $request->query->get('organisateur') ? $user : null,
+            'inscrit' => $request->query->get('inscrit') ? $user : null,
+            'nonInscrit' => $request->query->get('nonInscrit') ? $user : null,
             'terminees' => $request->query->get('terminees'),
         ];
+
         $campus = $request->query->get('campus', null);
         $campuss = $campusRepository->findAll();
-
-        // Appel au repository pour filtrer les sorties en fonction des critères
-        $sorties = $sortieRepository->searchSorties($filters);
+        $sorties = $sortieRepository->searchSorties($filters, $etatRepository);
 
         return $this->render('sortie/index.html.twig', [
             'sorties' => $sorties,
