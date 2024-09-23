@@ -15,7 +15,8 @@
                         <option value="{{ campus.id }}" {% if campus.id == app.request.query.get('campus') %}selected{% endif %}>
                             {{ campus.nom }}
                         </option>
-                    {% endfor %}                </select>
+                    {% endfor %}
+                </select>
             </div>
 
             <div class="col-md-4">
@@ -90,7 +91,7 @@
                     <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
                     <td>{{ sortie.dateLimiteInscription|date('d/m/Y') }}</td>
                     <td>{{ sortie.inscrits|length }}/{{ sortie.nbInscriptionMax }}</td>
-                    <td>{{ sortie.etat.nom }}</td>
+                    <td>{{ sortie.etat.libelle }}</td>
                     <td>
                         {% if app.user in sortie.inscrits %}
                             X
@@ -98,11 +99,16 @@
                     </td>
                     <td>{{ sortie.organisateur.nom }}</td>
                     <td>
-                        <a href="#" class="btn btn-info btn-sm">Afficher</a>
-                        {% if sortie.etat.nom == 'Ouverte' %}
-                            <a href="#" class="btn btn-success btn-sm">S'inscrire</a>
-                        {% elseif sortie.etat.nom == 'En cours' %}
-                            <a href="#" class="btn btn-warning btn-sm">Se désister</a>
+                        <a href="{{ path('app_sorties_show', {id: sortie.id}) }}" class="btn btn-info btn-sm">Afficher</a>
+                        {% if sortie.etat.libelle == 'Ouverte' %}
+                            {% if app.user in sortie.inscrits %}
+                                    <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Se désister</a>
+                                {% else %}
+                                    <a href="{{ path('app_sorties_register', {id: sortie.id}) }}" class="btn btn-success btn-sm">S'inscrire</a>
+                            {% endif %}
+
+                        {% elseif sortie.etat.libelle == 'En cours' %}
+                            <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Se désister</a>
                         {% endif %}
                     </td>
                 </tr>

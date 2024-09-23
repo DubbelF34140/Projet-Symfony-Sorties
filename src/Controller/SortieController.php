@@ -7,6 +7,7 @@ use App\Form\SortieType;
 use App\Repository\CampusRepository;
 use App\Repository\EtatRepository;
 use App\Repository\SortieRepository;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,6 +69,68 @@ class SortieController extends AbstractController
 
         return $this->render('sortie/create.html.twig', [
             'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/sorties/{id}/register', name: 'app_sorties_register')]
+    public function register(int $id, SortieRepository $sortieRepository, EntityManagerInterface $entityManager): Response
+    {
+        $sortie = $sortieRepository->find($id);
+
+        if (!$sortie) {
+            throw $this->createNotFoundException('La sortie n\'existe pas.');
+        }
+
+        $user = $this->getUser();
+
+        if ($sortie->getInscrits()->contains($user)) {
+            $this->addFlash('warning', 'Vous êtes déjà inscrit à cette sortie.');
+            return $this->redirectToRoute('app_sortie');
+        }
+
+        $sortie->addInscrit($user);
+        $entityManager->persist($sortie);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Vous êtes inscrit à la sortie.');
+
+        return $this->redirectToRoute('app_sortie');
+    }
+
+    #[Route('/sorties/{id}/desister', name: 'app_sorties_desister')]
+    public function desister(int $id, SortieRepository $sortieRepository, EntityManagerInterface $entityManager): Response
+    {
+        $sortie = $sortieRepository->find($id);
+
+        if (!$sortie) {
+            throw $this->createNotFoundException('La sortie n\'existe pas.');
+        }
+
+        $user = $this->getUser();
+
+        if (!$sortie->getInscrits()->contains($user)) {
+            $this->addFlash('warning', 'Vous êtes déjà désinscrit à cette sortie.');
+            return $this->redirectToRoute('app_sortie');
+        }
+
+        $sortie->removeInscrit($user);
+        $entityManager->persist($sortie);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Vous êtes désinscrit à la sortie.');
+
+        return $this->redirectToRoute('app_sortie');
+    }
+
+
+    #[Route('/sorties/{id}', name: 'app_sorties_show')]
+    public function show(int $id, SortieRepository $sortieRepository,): Response
+    {
+
+        $sortie = $sortieRepository->find($id);
+
+        return $this->render('sortie/show.html.twig', [
+            'sortie' => $sortie,
         ]);
     }
 
