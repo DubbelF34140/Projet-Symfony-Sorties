@@ -50,7 +50,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(inversedBy: 'participants')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?campus $campus = null;
+    private ?Campus $campus = null;
 
     public function getId(): ?int
     {
@@ -187,12 +187,12 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getCampus(): ?campus
+    public function getCampus(): ?Campus
     {
         return $this->campus;
     }
 
-    public function setCampus(?campus $campus): static
+    public function setCampus(?Campus $campus): static
     {
         $this->campus = $campus;
 
