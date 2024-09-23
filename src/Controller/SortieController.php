@@ -136,5 +136,24 @@ class SortieController extends AbstractController
         ]);
     }
 
+    #[Route('/sorties/{id<\d+>}/detail', name: 'app_sorties_detail')]
+    public function detail(int $id, SortieRepository $repo): Response
+    {
+
+        $sortie = $repo->find($id);
+        $participants = $sortie->getInscrits();
+
+        if(!$repo){
+            throw $this->createNotFoundException('sortie not found');
+        }
+
+        return $this->render('sortie/detail.html.twig', [
+            'title' => 'Afficher une sortie',
+            'sortie' => $sortie,
+            'participants' => $participants,
+
+        ]);
+    }
+
 }
 
