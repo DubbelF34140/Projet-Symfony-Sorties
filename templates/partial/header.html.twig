@@ -5,10 +5,10 @@
             <ul class="navbar-nav mr-auto">
                 {% if is_granted('ROLE_USER') %}
                     <li class="nav-item"><a class="nav-link" href="{{ path('app_sortie') }}">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ path('app_sortie') }}">Mon Profil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ path('app_participant_edit', { id: app.user.id }) }}">Mon Profil</a></li>
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN') %}
-                    <a class="nav-link" href="{{ path('app_participant') }}">Users</a>
+                    <a class="nav-link" href="{{ path('app_sortie') }}">Users</a>
                 {% endif %}
             </ul>
         </div>
