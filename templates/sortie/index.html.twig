@@ -3,83 +3,117 @@
 {% block title %}Liste des Sorties{% endblock %}
 
 {% block body %}
-    <h1>Filtrer les sorties</h1>
+    <div class="container mt-4">
+        <h1>Filtrer les sorties</h1>
 
-    <form method="get" action="{{ path('app_sortie') }}">
-        <label for="campus">Campus</label>
-        <select name="campus" id="campus">
-            <option value="">Tous</option>
-            <!-- Ajouter les options pour les différents campus -->
-        </select>
+        <form method="get" action="{{ path('app_sortie') }}" class="row g-3">
+            <div class="col-md-4">
+                <label for="campus" class="form-label">Campus</label>
+                <select name="campus" id="campus" class="form-select">
+                    <option value="">Tous</option>
+                    {% for campus in campuss %}
+                        <option value="{{ campus.id }}" {% if campus.id == app.request.query.get('campus') %}selected{% endif %}>
+                            {{ campus.nom }}
+                        </option>
+                    {% endfor %}                </select>
+            </div>
 
-        <label for="nom">Le nom de la sortie contient</label>
-        <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}">
+            <div class="col-md-4">
+                <label for="nom" class="form-label">Le nom de la sortie contient</label>
+                <div class="input-group">
+                    <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}" class="form-control">
+                    <span class="input-group-text" id="search-addon">🔍</span>
+                </div>
+            </div>
 
-        <label for="dateDebut">Entre</label>
-        <input type="date" name="dateDebut" id="dateDebut" value="{{ app.request.get('dateDebut') }}">
+            <div class="col-md-4">
+                <label for="dateDebut" class="form-label">Entre</label>
+                <input type="date" name="dateDebut" id="dateDebut" value="{{ app.request.get('dateDebut') }}" class="form-control">
+            </div>
 
-        <label for="dateFin">et</label>
-        <input type="date" name="dateFin" id="dateFin" value="{{ app.request.get('dateFin') }}">
+            <div class="col-md-4">
+                <label for="dateFin" class="form-label">et</label>
+                <input type="date" name="dateFin" id="dateFin" value="{{ app.request.get('dateFin') }}" class="form-control">
+            </div>
 
-        <div>
-            <label><input type="checkbox" name="organisateur" value="1" {{ app.request.get('organisateur') ? 'checked' : '' }}> Sorties dont je suis l'organisateur/trice</label>
-        </div>
-        <div>
-            <label><input type="checkbox" name="inscrit" value="1" {{ app.request.get('inscrit') ? 'checked' : '' }}> Sorties auxquelles je suis inscrit/e</label>
-        </div>
-        <div>
-            <label><input type="checkbox" name="nonInscrit" value="1" {{ app.request.get('nonInscrit') ? 'checked' : '' }}> Sorties auxquelles je ne suis pas inscrit/e</label>
-        </div>
-        <div>
-            <label><input type="checkbox" name="terminees" value="1" {{ app.request.get('terminees') ? 'checked' : '' }}> Sorties terminées</label>
-        </div>
+            <div class="col-md-12 d-flex flex-wrap">
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="checkbox" name="organisateur" value="1" id="organisateur" {{ app.request.get('organisateur') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="organisateur">
+                        Sorties dont je suis l'organisateur/trice
+                    </label>
+                </div>
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="checkbox" name="inscrit" value="1" id="inscrit" {{ app.request.get('inscrit') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="inscrit">
+                        Sorties auxquelles je suis inscrit/e
+                    </label>
+                </div>
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="checkbox" name="nonInscrit" value="1" id="nonInscrit" {{ app.request.get('nonInscrit') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="nonInscrit">
+                        Sorties auxquelles je ne suis pas inscrit/e
+                    </label>
+                </div>
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="checkbox" name="terminees" value="1" id="terminees" {{ app.request.get('terminees') ? 'checked' : '' }}>
+                    <label class="form-check-label" for="terminees">
+                        Sorties terminées
+                    </label>
+                </div>
+            </div>
 
-        <button type="submit">Rechercher</button>
-    </form>
+            <div class="col-12">
+                <button type="submit" class="btn btn-outline-dark">Rechercher</button>
+            </div>
+        </form>
 
-    <h2>Liste des Sorties</h2>
-    <table>
-        <thead>
-        <tr>
-            <th>Nom de la sortie</th>
-            <th>Date de la sortie</th>
-            <th>Clôture</th>
-            <th>Inscrits/Places</th>
-            <th>État</th>
-            <th>Inscrit</th>
-            <th>Organisateur</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for sortie in sorties %}
+        <h2 class="mt-4">Liste des Sorties</h2>
+
+        <table class="table table-striped">
+            <thead>
             <tr>
-                <td>{{ sortie.nom }}</td>
-                <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
-                <td>{{ sortie.dateLimiteInscription|date('d/m/Y') }}</td>
-                <td>{{ sortie.inscrits|length }}/{{ sortie.nbInscriptionMax }}</td>
-                <td>{{ sortie.etat.nom }}</td>
-                <td>
-                    {% if app.user in sortie.inscrits %}
-                        X
-                    {% endif %}
-                </td>
-                <td>{{ sortie.organisateur.nom }}</td>
-                <td>
-                    <a href="#">Afficher</a>
-                    {% if sortie.etat.nom == 'Ouverte' %}
-                        <a href="#">S'inscrire</a>
-                    {% elseif sortie.etat.nom == 'En cours' %}
-                        <a href="#">Se désister</a>
-                    {% endif %}
-                </td>
+                <th>Nom de la sortie</th>
+                <th>Date de la sortie</th>
+                <th>Clôture</th>
+                <th>Inscrits/Places</th>
+                <th>État</th>
+                <th>Inscrit</th>
+                <th>Organisateur</th>
+                <th>Actions</th>
             </tr>
-        {% else %}
-            <tr>
-                <td colspan="8">Aucune sortie trouvée</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    <a href="{{ path('app_sorties_create') }}">Créer une Sortie</a>
+            </thead>
+            <tbody>
+            {% for sortie in sorties %}
+                <tr>
+                    <td>{{ sortie.nom }}</td>
+                    <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
+                    <td>{{ sortie.dateLimiteInscription|date('d/m/Y') }}</td>
+                    <td>{{ sortie.inscrits|length }}/{{ sortie.nbInscriptionMax }}</td>
+                    <td>{{ sortie.etat.nom }}</td>
+                    <td>
+                        {% if app.user in sortie.inscrits %}
+                            X
+                        {% endif %}
+                    </td>
+                    <td>{{ sortie.organisateur.nom }}</td>
+                    <td>
+                        <a href="#" class="btn btn-info btn-sm">Afficher</a>
+                        {% if sortie.etat.nom == 'Ouverte' %}
+                            <a href="#" class="btn btn-success btn-sm">S'inscrire</a>
+                        {% elseif sortie.etat.nom == 'En cours' %}
+                            <a href="#" class="btn btn-warning btn-sm">Se désister</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8">Aucune sortie trouvée</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ path('app_sorties_create') }}" class="btn btn-primary">Créer une Sortie</a>
+    </div>
 {% endblock %}

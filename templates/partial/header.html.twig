@@ -1,0 +1,24 @@
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{{ path('app_sortie') }}">Sortie.com</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                {% if is_granted('ROLE_USER') %}
+                    <li class="nav-item"><a class="nav-link" href="{{ path('app_sortie') }}">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ path('app_sortie') }}">Mon Profil</a></li>
+                {% endif %}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a class="nav-link" href="{{ path('app_participant') }}">Users</a>
+                {% endif %}
+            </ul>
+        </div>
+        <div class="d-flex align-items-center ms-auto">
+            {% if app.user %}
+                <span class="me-2">{{ app.user.email }}</span>
+                <a class="btn btn-sm btn-secondary ms-2" href="{{ path('app_logout') }}">Se déconnecter</a>
+            {% else %}
+                <a class="btn btn-sm btn-secondary" href="{{ path('app_login') }}">Se connecter</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>

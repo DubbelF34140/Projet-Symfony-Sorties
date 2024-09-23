@@ -21,7 +21,7 @@ class EtatRepository extends ServiceEntityRepository
      */
     public function findEtatCreation(): ?Etat
     {
-        return $this->findOneBy(['nom' => 'En création']);
+        return $this->findOneBy(['libelle' => 'En création']);
     }
 
     /**
@@ -29,6 +29,6 @@ class EtatRepository extends ServiceEntityRepository
      */
     public function findEtatPubliee(): ?Etat
     {
-        return $this->findOneBy(['nom' => 'Publiée']);
+        return $this->findOneBy(['libelle' => 'Ouverte']);
     }
 }

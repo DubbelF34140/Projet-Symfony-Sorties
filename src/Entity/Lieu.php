@@ -25,9 +25,9 @@ class Lieu
     #[ORM\Column]
     private ?float $longitude = null;
 
-    #[ORM\ManyToOne(inversedBy: 'lieus')]
+    #[ORM\ManyToOne(targetEntity: Ville::class, inversedBy: 'lieus')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?ville $ville = null;
+    private $ville;
 
     public function getId(): ?int
     {
