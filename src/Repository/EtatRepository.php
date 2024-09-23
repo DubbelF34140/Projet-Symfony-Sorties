@@ -16,28 +16,19 @@ class EtatRepository extends ServiceEntityRepository
         parent::__construct($registry, Etat::class);
     }
 
-//    /**
-//     * @return Etat[] Returns an array of Etat objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('e.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
+    /**
+     * Retourne l'état "En création"
+     */
+    public function findEtatCreation(): ?Etat
+    {
+        return $this->findOneBy(['nom' => 'En création']);
+    }
 
-//    public function findOneBySomeField($value): ?Etat
-//    {
-//        return $this->createQueryBuilder('e')
-//            ->andWhere('e.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    /**
+     * Retourne l'état "Publiée"
+     */
+    public function findEtatPubliee(): ?Etat
+    {
+        return $this->findOneBy(['nom' => 'Publiée']);
+    }
 }

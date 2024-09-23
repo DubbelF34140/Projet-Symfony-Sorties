@@ -1,20 +1,85 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello SortieController!{% endblock %}
+{% block title %}Liste des Sorties{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <h1>Filtrer les sorties</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <form method="get" action="{{ path('app_sortie') }}">
+        <label for="campus">Campus</label>
+        <select name="campus" id="campus">
+            <option value="">Tous</option>
+            <!-- Ajouter les options pour les différents campus -->
+        </select>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/Users/ylanwoelffle/PhpstormProjects/sortie/src/Controller/SortieController.php</code></li>
-        <li>Your template at <code>/Users/ylanwoelffle/PhpstormProjects/sortie/templates/sortie/index.html.twig</code></li>
-    </ul>
-</div>
+        <label for="nom">Le nom de la sortie contient</label>
+        <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}">
+
+        <label for="dateDebut">Entre</label>
+        <input type="date" name="dateDebut" id="dateDebut" value="{{ app.request.get('dateDebut') }}">
+
+        <label for="dateFin">et</label>
+        <input type="date" name="dateFin" id="dateFin" value="{{ app.request.get('dateFin') }}">
+
+        <div>
+            <label><input type="checkbox" name="organisateur" value="1" {{ app.request.get('organisateur') ? 'checked' : '' }}> Sorties dont je suis l'organisateur/trice</label>
+        </div>
+        <div>
+            <label><input type="checkbox" name="inscrit" value="1" {{ app.request.get('inscrit') ? 'checked' : '' }}> Sorties auxquelles je suis inscrit/e</label>
+        </div>
+        <div>
+            <label><input type="checkbox" name="nonInscrit" value="1" {{ app.request.get('nonInscrit') ? 'checked' : '' }}> Sorties auxquelles je ne suis pas inscrit/e</label>
+        </div>
+        <div>
+            <label><input type="checkbox" name="terminees" value="1" {{ app.request.get('terminees') ? 'checked' : '' }}> Sorties terminées</label>
+        </div>
+
+        <button type="submit">Rechercher</button>
+    </form>
+
+    <h2>Liste des Sorties</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Nom de la sortie</th>
+            <th>Date de la sortie</th>
+            <th>Clôture</th>
+            <th>Inscrits/Places</th>
+            <th>État</th>
+            <th>Inscrit</th>
+            <th>Organisateur</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for sortie in sorties %}
+            <tr>
+                <td>{{ sortie.nom }}</td>
+                <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
+                <td>{{ sortie.dateLimiteInscription|date('d/m/Y') }}</td>
+                <td>{{ sortie.inscrits|length }}/{{ sortie.nbInscriptionMax }}</td>
+                <td>{{ sortie.etat.nom }}</td>
+                <td>
+                    {% if app.user in sortie.inscrits %}
+                        X
+                    {% endif %}
+                </td>
+                <td>{{ sortie.organisateur.nom }}</td>
+                <td>
+                    <a href="#">Afficher</a>
+                    {% if sortie.etat.nom == 'Ouverte' %}
+                        <a href="#">S'inscrire</a>
+                    {% elseif sortie.etat.nom == 'En cours' %}
+                        <a href="#">Se désister</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">Aucune sortie trouvée</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ path('app_sorties_create') }}">Créer une Sortie</a>
 {% endblock %}

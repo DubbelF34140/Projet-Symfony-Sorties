@@ -22,9 +22,6 @@ class Sortie
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateHeureDebut = null;
 
-    #[ORM\Column(type: Types::TIME_MUTABLE)]
-    private ?\DateTimeInterface $durée = null;
-
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateLimiteInscription = null;
 
@@ -36,11 +33,11 @@ class Sortie
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?etat $etat = null;
+    private ?Etat $etat = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?lieu $lieu = null;
+    private ?Lieu $lieu = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
@@ -55,6 +52,9 @@ class Sortie
     #[ORM\ManyToOne(inversedBy: 'sorties')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Campus $campus = null;
+
+    #[ORM\Column(type: Types::TIME_MUTABLE)]
+    private ?\DateTimeInterface $duree = null;
 
     public function __construct()
     {
@@ -86,18 +86,6 @@ class Sortie
     public function setDateHeureDebut(\DateTimeInterface $dateHeureDebut): static
     {
         $this->dateHeureDebut = $dateHeureDebut;
-
-        return $this;
-    }
-
-    public function getDurée(): ?\DateTimeInterface
-    {
-        return $this->durée;
-    }
-
-    public function setDurée(\DateTimeInterface $durée): static
-    {
-        $this->durée = $durée;
 
         return $this;
     }
@@ -138,24 +126,24 @@ class Sortie
         return $this;
     }
 
-    public function getEtat(): ?etat
+    public function getEtat(): ?Etat
     {
         return $this->etat;
     }
 
-    public function setEtat(?etat $etat): static
+    public function setEtat(?Etat $etat): static
     {
         $this->etat = $etat;
 
         return $this;
     }
 
-    public function getLieu(): ?lieu
+    public function getLieu(): ?Lieu
     {
         return $this->lieu;
     }
 
-    public function setLieu(?lieu $lieu): static
+    public function setLieu(?Lieu $lieu): static
     {
         $this->lieu = $lieu;
 
@@ -206,6 +194,18 @@ class Sortie
     public function setCampus(?Campus $campus): static
     {
         $this->campus = $campus;
+
+        return $this;
+    }
+
+    public function getDuree(): ?\DateTimeInterface
+    {
+        return $this->duree;
+    }
+
+    public function setDuree(\DateTimeInterface $duree): static
+    {
+        $this->duree = $duree;
 
         return $this;
     }

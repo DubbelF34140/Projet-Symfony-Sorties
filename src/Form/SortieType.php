@@ -1,12 +1,14 @@
 <?php
-
 namespace App\Form;
 
-use App\Entity\etat;
-use App\Entity\lieu;
+use App\Entity\Etat;
+use App\Entity\Lieu;
 use App\Entity\Sortie;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -16,24 +18,26 @@ class SortieType extends AbstractType
     {
         $builder
             ->add('nom')
-            ->add('dateHeureDebut', null, [
-                'widget' => 'single_text',
+            ->add('dateHeureDebut', DateTimeType::class, [
+                'widget' => 'single_text', // Utilisation correcte du widget pour les dates
+                'html5' => true,
+                'attr' => ['class' => 'datetimepicker'],
             ])
-            ->add('durée', null, [
-                'widget' => 'single_text',
+            ->add('dateLimiteInscription', DateTimeType::class, [
+                'widget' => 'single_text', // Utilisation correcte du widget pour les dates
+                'html5' => true,
+                'attr' => ['class' => 'datepicker'],
             ])
-            ->add('dateLimiteInscription', null, [
-                'widget' => 'single_text',
-            ])
-            ->add('nbInscriptionMax')
-            ->add('infosSortie')
+            ->add('nbInscriptionMax', IntegerType::class) // IntegerType pour nombre de places
+            ->add('duree', IntegerType::class) // IntegerType pour la durée
+            ->add('infosSortie', TextareaType::class)
             ->add('etat', EntityType::class, [
-                'class' => etat::class,
-                'choice_label' => 'id',
+                'class' => Etat::class, // Correction: "Etat" avec majuscule
+                'choice_label' => 'nom', // Assurez-vous que le champ 'nom' existe dans votre entité Etat
             ])
             ->add('lieu', EntityType::class, [
-                'class' => lieu::class,
-                'choice_label' => 'id',
+                'class' => Lieu::class, // Correction: "Lieu" avec majuscule
+                'choice_label' => 'nom', // Assurez-vous que le champ 'nom' existe dans votre entité Lieu
             ])
         ;
     }
@@ -45,3 +49,4 @@ class SortieType extends AbstractType
         ]);
     }
 }
+
