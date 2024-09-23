@@ -28,7 +28,8 @@ class ParticipantFixture extends Fixture implements OrderedFixtureInterface
 
         // Création de l'administrateur
         $admin = new Participant();
-        $admin->setEmail('admin@sortir.com')
+        $admin->setPseudo('AD1')
+            ->setEmail('admin@sortir.com')
             ->setNom('AdminNom')
             ->setPrenom('AdminPrenom')
             ->setTelephone('0600000000')
@@ -41,7 +42,8 @@ class ParticipantFixture extends Fixture implements OrderedFixtureInterface
 
         // Création du premier utilisateur
         $user1 = new Participant();
-        $user1->setEmail('user1@sortir.com')
+        $user1->setPseudo('US1')
+            ->setEmail('user1@sortir.com')
             ->setNom('User1Nom')
             ->setPrenom('User1Prenom')
             ->setTelephone('0611111111')
@@ -53,7 +55,8 @@ class ParticipantFixture extends Fixture implements OrderedFixtureInterface
 
         // Création du second utilisateur
         $user2 = new Participant();
-        $user2->setEmail('user2@sortir.com')
+        $user2->setPseudo('US2')
+            ->setEmail('user2@sortir.com')
             ->setNom('User2Nom')
             ->setPrenom('User2Prenom')
             ->setTelephone('0622222222')
