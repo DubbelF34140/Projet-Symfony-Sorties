@@ -56,6 +56,9 @@ class Sortie
     #[ORM\Column(type: 'integer')]
     private ?int $duree = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $infosuppr = null;
+
     public function __construct()
     {
         $this->inscrits = new ArrayCollection();
@@ -206,6 +209,18 @@ class Sortie
     public function setDuree(int $duree): static
     {
         $this->duree = $duree;
+
+        return $this;
+    }
+
+    public function getInfosuppr(): ?string
+    {
+        return $this->infosuppr;
+    }
+
+    public function setInfosuppr(?string $infosuppr): static
+    {
+        $this->infosuppr = $infosuppr;
 
         return $this;
     }

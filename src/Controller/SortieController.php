@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Sortie;
+use App\Form\AnnulationType;
 use App\Form\SortieType;
 use App\Repository\CampusRepository;
 use App\Repository\EtatRepository;
@@ -206,6 +207,59 @@ class SortieController extends AbstractController
         ]);
     }
 
+    #[Route('/sortie/{id}/annuler', name: 'app_sortie_annuler', methods: ['GET', 'POST'])]
+    public function annuler(
+        Sortie $sortie,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        EtatRepository $etatRepository
+    ): Response {
+        // Vérification si l'utilisateur est l'organisateur de la sortie
+        $this->denyAccessUnlessGranted('ROLE_USER');
+        $user = $this->getUser();
+
+        if ($sortie->getOrganisateur() !== $user) {
+            $this->addFlash('error', 'Vous ne pouvez annuler que vos propres sorties.');
+            return $this->redirectToRoute('app_sortie');
+        }
+
+        // Vérification si la sortie est déjà commencée
+        $now = new \DateTime();
+        if ($sortie->getDateHeureDebut() <= $now) {
+            $this->addFlash('error', 'Vous ne pouvez pas annuler une sortie qui a déjà commencé.');
+            return $this->redirectToRoute('app_sortie');
+        }
+
+        // Vérification si la sortie est publiée
+        $etatPublie = $etatRepository->findEtatPubliee();
+        if ($sortie->getEtat() !== $etatPublie) {
+            $this->addFlash('error', 'Seules les sorties publiées peuvent être annulées.');
+            return $this->redirectToRoute('app_sortie');
+        }
+
+        // Formulaire pour motif d'annulation
+        $form = $this->createForm(AnnulationType::class, $sortie);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Changer l'état à "Annulée"
+            $etatAnnule = $etatRepository->findEtatAnnulee();
+            $sortie->setEtat($etatAnnule);
+            $sortie->setInfosuppr($form->get('infosSortie')->getData());
+
+            // Sauvegarder le motif d'annulation
+            $entityManager->persist($sortie);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'La sortie a été annulée avec succès.');
+            return $this->redirectToRoute('app_sortie');
+        }
+
+        return $this->render('sortie/annuler.html.twig', [
+            'sortie' => $sortie,
+            'form' => $form->createView(),
+        ]);
+    }
 
 }
 

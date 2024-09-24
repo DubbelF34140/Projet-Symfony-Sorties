@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Annuler la sortie{% endblock %}
+
+{% block body %}
+    <h1>Annuler la sortie : {{ sortie.nom }}</h1>
+
+    <p>Êtes-vous sûr de vouloir annuler cette sortie ? Cette action est irréversible.</p>
+
+    {{ form_start(form) }}
+    <div class="form-group">
+        {{ form_label(form.infosSortie) }}
+        {{ form_widget(form.infosSortie, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <button type="submit" class="btn btn-danger">Annuler la sortie</button>
+    <a href="{{ path('app_sortie') }}" class="btn btn-secondary">Retour</a>
+    {{ form_end(form) }}
+{% endblock %}
