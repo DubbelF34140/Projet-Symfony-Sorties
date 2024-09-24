@@ -259,7 +259,7 @@ class SortieController extends AbstractController
             // Changer l'état à "Annulée"
             $etatAnnule = $etatRepository->findEtatAnnulee();
             $sortie->setEtat($etatAnnule);
-            $sortie->setInfosuppr($form->get('infosSortie')->getData());
+            $sortie->setInfosuppr($form->get('infosuppr')->getData());
 
             // Sauvegarder le motif d'annulation
             $entityManager->persist($sortie);
