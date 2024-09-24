@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: SortieRepository::class)]
 class Sortie
@@ -16,15 +18,22 @@ class Sortie
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\NotBlank(message: 'Le nom ne doit pas être vide')]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
+    #[Assert\NotBlank(message: 'La date ne doit pas être vide')]
+    #[Assert\GreaterThanOrEqual('today', message: 'La date de début doit être supérieure à la date du jour')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateHeureDebut = null;
 
+    #[Assert\GreaterThanOrEqual('today', message: 'La date doit être supérieure à la date du jour' )]
+    #[Assert\LessThanOrEqual(propertyPath: 'dateHeureDebut', message: 'La date doit être inférieure à la date de début')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateLimiteInscription = null;
 
+
+    #[Assert\GreaterThanOrEqual('1', message: 'Le nombre de places doit être supérieur à 1' )]
     #[ORM\Column]
     private ?int $nbInscriptionMax = null;
 
@@ -53,6 +62,11 @@ class Sortie
     #[ORM\JoinColumn(nullable: false)]
     private ?Campus $campus = null;
 
+    #[Assert\Type(
+        type: 'integer',
+        message: 'The value {{ value }} is not a valid {{ type }}.',
+    )]
+    #[Assert\GreaterThanOrEqual('1', message: 'La durée (en min) doit être supérieure à 1' )]
     #[ORM\Column(type: 'integer')]
     private ?int $duree = null;
 

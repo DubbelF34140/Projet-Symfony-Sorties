@@ -111,8 +111,9 @@
                             {% endif %}
                         {% elseif sortie.etat.libelle == 'En cours' %}
                             <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Se désister</a>
-                        {% elseif (sortie.etat.libelle == 'En création' and  app.user.administrateur) %}
-                            <a href="{{ path('app_sorties_update', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+
+                        {% elseif (sortie.etat.libelle == 'En création' and  app.user.pseudo == sortie.organisateur.pseudo) %}
+                                <a href="{{ path('app_sorties_update', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
                         {% endif %}
                     </td>
                 </tr>

@@ -94,7 +94,7 @@ class SortieController extends AbstractController
 
             return $this->redirectToRoute('app_sortie');
         }
-
+        dump($form->getErrors());
         return $this->render('sortie/create.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -195,7 +195,7 @@ class SortieController extends AbstractController
             // Persist
             $em->flush();
             //Add Succes notif
-            //$this->addFlash('success', 'La sortie a été modifié avec succès');
+            $this->addFlash('success', 'La sortie a été modifiée avec succès');
             return $this->redirectToRoute('app_sorties_detail', ['id' => $sortie->getId()]);
         }
 
@@ -204,6 +204,20 @@ class SortieController extends AbstractController
             'form' => $sortieForm,
             'sortie' => $sortie
         ]);
+    }
+
+    #[Route('/delete/{id<\d+>}', name: 'app_sorties_delete', methods: ['POST'])]
+    public function delete(int $id, SortieRepository $repo, EntityManagerInterface $em): Response
+    {
+        $sortie = $repo->find($id);
+        if(!$sortie){
+            throw $this->createNotFoundException('Sortie not found');
+        }
+
+        $em->remove($sortie);
+        $em->flush();
+
+        return $this->redirectToRoute('app_sortie');
     }
 
 
