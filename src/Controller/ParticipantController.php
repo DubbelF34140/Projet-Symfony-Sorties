@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Participant;
 use App\Form\ChangePasswordType;
 use App\Form\ParticipantType;
+use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -79,6 +80,16 @@ class ParticipantController extends AbstractController
         // Ici tu récupères déjà l'utilisateur à afficher via le param converter
         return $this->render('participant/view.html.twig', [
             'participant' => $participant,
+        ]);
+    }
+
+    #[Route('/participant/admin', name: 'app_participant_admin')]
+    public function admin(ParticipantRepository $participantRepository): Response
+    {
+        $participants = $participantRepository->findAll();
+
+        return $this->render('participant/admin.html.twig', [
+            'participants' => $participants,
         ]);
     }
 }
