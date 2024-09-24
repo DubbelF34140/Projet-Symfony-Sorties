@@ -14,7 +14,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 
-class ParticipantType extends AbstractType
+class ParticipantEditType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
