@@ -34,6 +34,26 @@
                     {{ form_errors(form.photo) }}
                 </div>
 
+                {% if is_granted('ROLE_ADMIN') %}
+                    <div class="form-group mb-3">
+                        {{ form_label(form.campus) }}
+                        {{ form_widget(form.campus, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.campus) }}
+                    </div>
+
+                    <div class="form-group form-check mb-3">
+                        {{ form_widget(form.actif, {'attr': {'class': 'form-check-input'}}) }}
+                        {{ form_label(form.actif, 'Actif', {'label_attr': {'class': 'form-check-label'}}) }}
+                        {{ form_errors(form.actif) }}
+                    </div>
+                {% else %}
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <p class="card-text"><strong>Campus :</strong> {{ participant.campus.nom }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ path('app_participant_change_password', {id: participant.id}) }}" class="btn btn-secondary">Modifier le mot de passe</a>
                     <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>

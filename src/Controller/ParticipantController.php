@@ -99,8 +99,10 @@ class ParticipantController extends AbstractController
     #[Route('admin/participant/register', name: 'app_participant_register')]
     public function register(Request $request, EntityManagerInterface $em,  UserPasswordHasherInterface $passwordHasher): Response
     {
+        $isAdmin = in_array('ROLE_ADMIN', $this->getUser()->getRoles());
+
         $participant = new Participant();
-        $form = $this->createForm(ParticipantRegisterType::class, $participant);
+        $form = $this->createForm(ParticipantRegisterType::class, $participant, ['is_admin' => $isAdmin]);
 
         $form->handleRequest($request);
 
