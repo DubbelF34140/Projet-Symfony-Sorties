@@ -25,7 +25,7 @@ class ParticipantController extends AbstractController
             throw new AccessDeniedException('Vous n\'avez pas la permission de modifier ce profil.');
         }
 
-        $form = $this->createForm(ParticipantEditType::class, $participant);
+        $form = $this->createForm(ParticipantEditType::class, $participant, ['is_admin' => $this->isGranted('ROLE_ADMIN')]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -99,10 +99,8 @@ class ParticipantController extends AbstractController
     #[Route('admin/participant/register', name: 'app_participant_register')]
     public function register(Request $request, EntityManagerInterface $em,  UserPasswordHasherInterface $passwordHasher): Response
     {
-        $isAdmin = in_array('ROLE_ADMIN', $this->getUser()->getRoles());
-
         $participant = new Participant();
-        $form = $this->createForm(ParticipantRegisterType::class, $participant, ['is_admin' => $isAdmin]);
+        $form = $this->createForm(ParticipantRegisterType::class, $participant);
 
         $form->handleRequest($request);
 
