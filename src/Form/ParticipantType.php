@@ -37,18 +37,6 @@ class ParticipantType extends AbstractType
             ->add('telephone', TextType::class, [
                 'label' => 'Téléphone',
                 'required' => false,
-            ])
-            ->add('password', RepeatedType::class, [
-                'type' => PasswordType::class,
-                'required' => false, // Le mot de passe n'est pas requis à moins d'être modifié
-                'first_options' => [
-                    'label' => 'Nouveau mot de passe',
-                    'constraints' => [
-                        new Length(['min' => 6]),
-                    ],
-                ],
-                'second_options' => ['label' => 'Confirmer le mot de passe'],
-                'invalid_message' => 'Les mots de passe doivent correspondre.',
             ]);
     }
 
