@@ -65,6 +65,7 @@ class ParticipantController extends AbstractController
                 $participant->setPassword($hashedPassword);
             }
 
+            $participant->setFirstconnection(false);
             $entityManager->persist($participant);
             $entityManager->flush();
 

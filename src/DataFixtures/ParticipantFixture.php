@@ -36,7 +36,8 @@ class ParticipantFixture extends Fixture implements OrderedFixtureInterface
             ->setAdministrateur(true)
             ->setActif(true)
             ->setPassword($this->passwordHasher->hashPassword($admin, 'adminpassword'))
-            ->setCampus($paris);
+            ->setCampus($paris)
+            ->setFirstconnection(true);
         $admin->setRoles(['ROLE_ADMIN']);
         $manager->persist($admin);
 
@@ -50,7 +51,8 @@ class ParticipantFixture extends Fixture implements OrderedFixtureInterface
             ->setAdministrateur(false)
             ->setActif(true)
             ->setPassword($this->passwordHasher->hashPassword($user1, 'user1password'))
-            ->setCampus($paris);
+            ->setCampus($paris)
+            ->setFirstconnection(true);
         $manager->persist($user1);
 
         // Création du second utilisateur
@@ -63,7 +65,8 @@ class ParticipantFixture extends Fixture implements OrderedFixtureInterface
             ->setAdministrateur(false)
             ->setActif(true)
             ->setPassword($this->passwordHasher->hashPassword($user2, 'user2password'))
-            ->setCampus($lyon);
+            ->setCampus($lyon)
+            ->setFirstconnection(true);
         $manager->persist($user2);
 
         // Sauvegarde des utilisateurs dans la base

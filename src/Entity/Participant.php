@@ -60,6 +60,9 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinColumn(nullable: false)]
     private ?Campus $campus = null;
 
+    #[ORM\Column]
+    private ?bool $firstconnection = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -229,6 +232,18 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCampus(?Campus $campus): static
     {
         $this->campus = $campus;
+
+        return $this;
+    }
+
+    public function isFirstconnection(): ?bool
+    {
+        return $this->firstconnection;
+    }
+
+    public function setFirstconnection(bool $firstconnection): static
+    {
+        $this->firstconnection = $firstconnection;
 
         return $this;
     }
