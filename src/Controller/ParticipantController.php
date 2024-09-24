@@ -26,16 +26,6 @@ class ParticipantController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $file = $form->get('photo')->getData();
-            if ($file) {
-                // Gérer le stockage du fichier
-                $filename = uniqid() . '.' . $file->guessExtension(); // Générer un nom de fichier unique
-                $file->move($this->getParameter('photos_directory'), $filename); // Déplacez le fichier
-
-                // Mettre à jour l'entité avec le nom du fichier
-                $participant->setPhoto($filename);
-            }
-
             // Sauvegarder les modifications
             $entityManager->persist($participant);
             $entityManager->flush();
