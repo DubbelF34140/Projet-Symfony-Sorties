@@ -1,44 +1,44 @@
+{# templates/participant/view.html.twig #}
+
 {% extends 'base.html.twig' %}
 
 {% block title %}Profil de {{ participant.pseudo }}{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="card shadow-sm">
-            <div class="card-header text-center bg-primary text-white">
-                <h2>Profil de {{ participant.pseudo }}</h2>
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Email :</strong>
-                        <p>{{ participant.email }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Nom :</strong>
-                        <p>{{ participant.nom }}</p>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Prénom :</strong>
-                        <p>{{ participant.prenom }}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Téléphone :</strong>
-                        <p>{{ participant.telephone }}</p>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Campus :</strong>
-                        <p>{{ participant.campus.nom }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer text-end">
-                <a href="{{ path('app_participant_edit', {id: participant.id}) }}" class="btn btn-outline-primary">Modifier le profil</a>
-            </div>
-        </div>
-    </div>
+    <h1>Profil de {{ participant.pseudo }}</h1>
+
+    <table class="table">
+        <tr>
+            <th>Image</th>
+            <td>
+                {% if participant.photo %}
+                    <img src="{{ asset('uploads/photos/' ~ participant.photo) }}" alt="Photo de profil" class="img-fluid rounded-circle" style="max-width: 150px;">
+                {% else %}
+                    <img src="{{ asset('images/profilepicdefault.jpg') }}" alt="Aucune photo de profil" class="img-fluid rounded-circle" style="max-width: 150px;">
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ participant.email }}</td>
+        </tr>
+        <tr>
+            <th>Nom</th>
+            <td>{{ participant.nom }}</td>
+        </tr>
+        <tr>
+            <th>Prénom</th>
+            <td>{{ participant.prenom }}</td>
+        </tr>
+        <tr>
+            <th>Téléphone</th>
+            <td>{{ participant.telephone }}</td>
+        </tr>
+        <tr>
+            <th>Campus</th>
+            <td>{{ participant.campus.nom }}</td>
+        </tr>
+    </table>
+
+    <a href="{{ path('app_participant_edit', {id: participant.id}) }}" class="btn btn-primary">Modifier</a>
 {% endblock %}
