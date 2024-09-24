@@ -19,4 +19,10 @@ class DefaultController extends AbstractController
     {
         return $this->redirectToRoute('app_login');
     }
+
+    #[Route('/admin', name: 'app_admin')]
+    public function admin(): Response
+    {
+        return $this->render('default/admin.html.twig');
+    }
 }

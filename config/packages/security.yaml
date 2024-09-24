@@ -40,6 +40,7 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS}
         - { path: ^/logout, roles: PUBLIC_ACCESS}
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/admin/.*, roles: ROLE_ADMIN }
         - { path: ^/.*, allow_if: "is_granted('IS_AUTHENTICATED_FULLY') and user.isActif()" }
 
 when@test:
