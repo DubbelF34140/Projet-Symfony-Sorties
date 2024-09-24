@@ -51,12 +51,16 @@ class SortieController extends AbstractController
         // Recherche des sorties avec les filtres appliqués
         $query = $sortieRepository->searchSorties($filters, $etatRepository);
 
+        dump($query);
+
         // Pagination des résultats
         $sorties = $paginator->paginate(
             $query,
             $request->query->getInt('page', 1),
             10
         );
+
+        dump($sorties);
 
         return $this->render('sortie/index.html.twig', [
             'sorties' => $sorties,

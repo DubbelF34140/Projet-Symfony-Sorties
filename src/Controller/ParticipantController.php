@@ -38,4 +38,13 @@ class ParticipantController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    #[Route('/participant/{id}/view', name: 'app_participant_view')]
+    public function view(Participant $participant): Response
+    {
+        // Ici tu récupères déjà l'utilisateur à afficher via le param converter
+        return $this->render('participant/view.html.twig', [
+            'participant' => $participant,
+        ]);
+    }
 }
