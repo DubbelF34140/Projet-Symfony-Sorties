@@ -8,6 +8,7 @@ use App\Form\SortieType;
 use App\Repository\CampusRepository;
 use App\Repository\EtatRepository;
 use App\Repository\SortieRepository;
+use App\Repository\VilleRepository;
 use App\Service\SortieStatusService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -71,8 +72,10 @@ class SortieController extends AbstractController
     }
 
     #[Route('/sorties/create', name: 'app_sorties_create')]
-    public function create(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository): Response
+    public function create(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository, VilleRepository $villeRepository): Response
     {
+        $villes = $villeRepository->findAll();
+
         $sortie = new Sortie();
         $form = $this->createForm(SortieType::class, $sortie);
         $form->handleRequest($request);
@@ -98,6 +101,7 @@ class SortieController extends AbstractController
 
         return $this->render('sortie/create.html.twig', [
             'form' => $form->createView(),
+            'villes' => $villes,
         ]);
     }
 
@@ -178,13 +182,14 @@ class SortieController extends AbstractController
                            Sortie $sortie,
                            sortieRepository $sortieRepo ,
                            etatRepository $etatRepository,
+                           villeRepository $villeRepository,
                            EntityManagerInterface $em//,
                            //SluggerInterface $slugger,
                            //#[Autowire('%kernel.project_dir%/public/uploads/wish')] string $wishesDirectory
     ): Response
     {
         $sortieForm = $this->createForm(SortieType::class, $sortie);
-
+        $villes = $villeRepository->findAll();
         //Submit and Validate
         $sortieForm->handleRequest($request);
         if ($sortieForm->isSubmitted() && $sortieForm->isValid()) {
@@ -203,7 +208,8 @@ class SortieController extends AbstractController
         return $this->render('sortie/update.html.twig', [
             'title' => 'Modification d\'une sortie',
             'form' => $sortieForm,
-            'sortie' => $sortie
+            'sortie' => $sortie,
+            'villes' => $villes,
         ]);
     }
 
