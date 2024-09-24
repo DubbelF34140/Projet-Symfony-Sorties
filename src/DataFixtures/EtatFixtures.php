@@ -17,7 +17,8 @@ class EtatFixtures extends Fixture implements OrderedFixtureInterface
             'Clôturée',
             'En cours',
             'Annulée',
-            'Terminé'
+            'Terminé',
+            'Historisée'
         ];
 
         foreach ($etats as $etatName) {

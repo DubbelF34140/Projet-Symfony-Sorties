@@ -7,8 +7,9 @@ use App\Form\SortieType;
 use App\Repository\CampusRepository;
 use App\Repository\EtatRepository;
 use App\Repository\SortieRepository;
-use Doctrine\ORM\EntityManager;
+use App\Service\SortieStatusService;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,10 +18,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class SortieController extends AbstractController
 {
     #[Route('/sortie', name: 'app_sortie')]
-    public function index(Request $request, SortieRepository $sortieRepository, CampusRepository $campusRepository, EtatRepository $etatRepository): Response
+    public function index(Request $request, SortieRepository $sortieRepository, CampusRepository $campusRepository, EtatRepository $etatRepository, SortieStatusService $service, LoggerInterface $logger): Response
     {
         // Récupérer l'utilisateur connecté
         $user = $this->getUser();
+
+        $service->checkSortieStatus($logger, $etatRepository);
 
         // Récupérer les filtres depuis la requête GET
         $filters = [
@@ -66,6 +69,8 @@ class SortieController extends AbstractController
             $entityManager->persist($sortie);
             $entityManager->flush();
 
+
+
             return $this->redirectToRoute('app_sortie');
         }
 
@@ -87,6 +92,9 @@ class SortieController extends AbstractController
 
         if ($sortie->getInscrits()->contains($user)) {
             $this->addFlash('warning', 'Vous êtes déjà inscrit à cette sortie.');
+            return $this->redirectToRoute('app_sortie');
+        } elseif ($sortie->getInscrits()->count() == $sortie->getNbInscriptionMax()) {
+            $this->addFlash('error', 'La sortie est complète.');
             return $this->redirectToRoute('app_sortie');
         }
 
