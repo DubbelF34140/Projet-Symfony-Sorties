@@ -19,38 +19,16 @@ class ParticipantController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Vérifier l'unicité du pseudo et de l'email
-            $existingParticipantByEmail = $entityManager->getRepository(Participant::class)->findOneBy(['email' => $participant->getEmail()]);
-            $existingParticipantByPseudo = $entityManager->getRepository(Participant::class)->findOneBy(['pseudo' => $participant->getPseudo()]);
-
-            if ($existingParticipantByEmail && $existingParticipantByEmail->getId() !== $participant->getId()) {
-                $this->addFlash('error', 'Cet email est déjà utilisé.');
-                return $this->redirectToRoute('app_participant_edit', ['id' => $participant->getId()]);
+            // Ne met à jour le mot de passe que si un nouveau mot de passe a été soumis
+            $newPassword = $form->get('password')->getData();
+            if (!empty($newPassword)) {
+                $hashedPassword = $userPasswordHasher->hashPassword($participant, $newPassword);
+                $participant->setPassword($hashedPassword);
             }
 
-            if ($existingParticipantByPseudo && $existingParticipantByPseudo->getId() !== $participant->getId()) {
-                $this->addFlash('error', 'Ce pseudo est déjà utilisé.');
-                return $this->redirectToRoute('app_participant_edit', ['id' => $participant->getId()]);
-            }
-
-            // Récupérer les mots de passe
-            $plainPassword = $form->get('password')->getData();
-            $confirmPassword = $form->get('confirm_password')->getData();
-
-            // Vérifier si les mots de passe correspondent
-            if (!empty($confirmPassword) && ($plainPassword && $plainPassword === $confirmPassword)) {
-                // Changer le mot de passe
-                $participant->setPassword($userPasswordHasher->hashPassword($participant, $plainPassword));
-            } elseif (!empty($confirmPassword)) {
-                $this->addFlash('error', 'Les mots de passe ne correspondent pas.');
-                return $this->redirectToRoute('app_participant_edit', ['id' => $participant->getId()]);
-            }
-
-            // Enregistrer les changements
+            // Sauvegarder les modifications
             $entityManager->persist($participant);
             $entityManager->flush();
-
-            $this->addFlash('success', 'Profil mis à jour avec succès.');
 
             return $this->redirectToRoute('app_participant_edit', ['id' => $participant->getId()]);
         }
@@ -60,5 +38,4 @@ class ParticipantController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 }
