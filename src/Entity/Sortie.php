@@ -23,12 +23,13 @@ class Sortie
     private ?string $nom = null;
 
     #[Assert\NotBlank(message: 'La date ne doit pas être vide')]
-    #[Assert\GreaterThanOrEqual('today', message: 'La date de début doit être supérieure à la date du jour')]
+    #[Assert\GreaterThanOrEqual('today', message: 'La date de début doit être supérieure ou égale à aujourd\'hui')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateHeureDebut = null;
 
-    #[Assert\GreaterThanOrEqual('today', message: 'La date doit être supérieure à la date du jour' )]
-    #[Assert\LessThanOrEqual(propertyPath: 'dateHeureDebut', message: 'La date doit être inférieure à la date de début')]
+    #[Assert\NotBlank(message: 'La date ne doit pas être vide')]
+    #[Assert\LessThanOrEqual(propertyPath: 'dateHeureDebut', message: 'La date limite d\'inscription doit être inférieure ou égale à la date de début')]
+    #[Assert\GreaterThanOrEqual('today', message: 'La date limite d\'inscription doit être supérieure ou égale à aujourd\'hui')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $dateLimiteInscription = null;
 

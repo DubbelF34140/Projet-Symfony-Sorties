@@ -53,16 +53,19 @@
         </div>
     </div>
 
-    <div class="form-row">
-        <div class="form-group">
-            {{ form_label(form.lieu, 'Lieu') }}
-            {{ form_widget(form.lieu) }}
-        </div>
-        <div class="form-group">
-            Rue : {{ sortie.lieu.rue }}
-            CP : {{ sortie.lieu.ville.codePostal }}
-            Latitude/Longitude : {{ sortie.lieu.latitude}}/{{ sortie.lieu.longitude}}
-        </div>
+    <div class="form-group">
+        <label for="ville">Ville</label>
+        <select id="ville" class="form-control">
+            <option value="">Sélectionnez une ville</option>
+            {% for ville in villes %}
+                <option value="{{ ville.id }}">{{ ville.nom }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.lieu, 'Lieu') }}
+        {{ form_widget(form.lieu, {'attr': {'disabled': true}}) }} <!-- Désactivé par défaut -->
     </div>
 
     <div class="form-actions">
@@ -73,4 +76,46 @@
     </div>
 
     {{ form_end(form) }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const villeSelect = document.querySelector('#ville');
+            const lieuSelect = document.querySelector('#{{ form.lieu.vars.id }}'); // Sélecteur basé sur l'ID du widget lieu
+
+            // Désactiver le champ lieu au chargement de la page
+            lieuSelect.disabled = true;
+
+            villeSelect.addEventListener('change', function () {
+                const villeId = villeSelect.value;
+
+                if (villeId) {
+                    // Activer le champ lieu lorsque la ville est sélectionnée
+                    lieuSelect.disabled = false;
+
+                    // Charger les lieux via Ajax
+                    fetch(`/api/lieux/${villeId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Vider le select des lieux
+                            lieuSelect.innerHTML = '<option value="">Sélectionnez un lieu</option>';
+
+                            // Ajouter les lieux reçus
+                            data.forEach(lieu => {
+                                const option = document.createElement('option');
+                                option.value = lieu.id;
+                                option.textContent = lieu.nom;
+                                lieuSelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    // Désactiver le champ lieu si aucune ville n'est sélectionnée
+                    lieuSelect.disabled = true;
+                    lieuSelect.innerHTML = '<option value="">Sélectionnez une ville d\'abord</option>';
+                }
+            });
+        });
+    </script>
 {% endblock %}
