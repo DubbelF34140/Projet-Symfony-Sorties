@@ -3,68 +3,71 @@
 {% block title %}Liste des Sorties{% endblock %}
 
 {% block body %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <div class="container mt-4">
         <h1>Filtrer les sorties</h1>
 
-        <form method="get" action="{{ path('app_sortie') }}" class="row g-3">
-            <div class="col-md-4">
-                <label for="campus" class="form-label">Campus</label>
-                <select name="campus" id="campus" class="form-select">
-                    <option value="">Tous</option>
-                    {% for campus in campuss %}
-                        <option value="{{ campus.id }}" {% if campus.id == app.request.query.get('campus') %}selected{% endif %}>
-                            {{ campus.nom }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
+        <form method="get" action="{{ path('app_sortie') }}" class="form-container">
+            <!-- Div gauche : Campus, Nom de la sortie, Dates -->
+            <div class="form-left">
+                <div class="form-group">
+                    <label for="campus" class="form-label">Campus</label>
+                    <select name="campus" id="campus" class="form-select">
+                        <option value="">Tous</option>
+                        {% for campus in campuss %}
+                            <option value="{{ campus.id }}" {% if campus.id == app.request.query.get('campus') %}selected{% endif %}>
+                                {{ campus.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <div class="col-md-4">
-                <label for="nom" class="form-label">Le nom de la sortie contient</label>
-                <div class="input-group">
-                    <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}" class="form-control">
-                    <span class="input-group-text" id="search-addon">🔍</span>
+                <div class="form-group">
+                    <label for="nom" class="form-label">Le nom de la sortie contient</label>
+                    <div class="input-group">
+                        <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}" class="form-control" placeholder="search">
+                    </div>
+                </div>
+
+                <div class="dates-group">
+                    <div class="form-group">
+                        <label for="dateDebut" class="form-label">Entre</label>
+                        <input type="date" name="dateDebut" id="dateDebut" value="{{ app.request.get('dateDebut') }}" class="form-control">
+                        <label for="dateFin" class="form-label">et</label>
+                        <input type="date" name="dateFin" id="dateFin" value="{{ app.request.get('dateFin') }}" class="form-control">
+                    </div>
                 </div>
             </div>
 
-            <div class="col-md-4">
-                <label for="dateDebut" class="form-label">Entre</label>
-                <input type="date" name="dateDebut" id="dateDebut" value="{{ app.request.get('dateDebut') }}" class="form-control">
-            </div>
+            <!-- Div milieu : Checkboxes -->
+            <div class="form-middle">
+                <div class="checkboxes">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="organisateur" value="1" id="organisateur" {{ app.request.get('organisateur') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="organisateur">Sorties dont je suis l'organisateur/trice</label>
+                    </div>
 
-            <div class="col-md-4">
-                <label for="dateFin" class="form-label">et</label>
-                <input type="date" name="dateFin" id="dateFin" value="{{ app.request.get('dateFin') }}" class="form-control">
-            </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="inscrit" value="1" id="inscrit" {{ app.request.get('inscrit') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="inscrit">Sorties auxquelles je suis inscrit/e</label>
+                    </div>
 
-            <div class="col-md-12 d-flex flex-wrap">
-                <div class="form-check me-3">
-                    <input class="form-check-input" type="checkbox" name="organisateur" value="1" id="organisateur" {{ app.request.get('organisateur') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="organisateur">
-                        Sorties dont je suis l'organisateur/trice
-                    </label>
-                </div>
-                <div class="form-check me-3">
-                    <input class="form-check-input" type="checkbox" name="inscrit" value="1" id="inscrit" {{ app.request.get('inscrit') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="inscrit">
-                        Sorties auxquelles je suis inscrit/e
-                    </label>
-                </div>
-                <div class="form-check me-3">
-                    <input class="form-check-input" type="checkbox" name="nonInscrit" value="1" id="nonInscrit" {{ app.request.get('nonInscrit') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="nonInscrit">
-                        Sorties auxquelles je ne suis pas inscrit/e
-                    </label>
-                </div>
-                <div class="form-check me-3">
-                    <input class="form-check-input" type="checkbox" name="terminees" value="1" id="terminees" {{ app.request.get('terminees') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="terminees">
-                        Sorties terminées
-                    </label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="nonInscrit" value="1" id="nonInscrit" {{ app.request.get('nonInscrit') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="nonInscrit">Sorties auxquelles je ne suis pas inscrit/e</label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="terminees" value="1" id="terminees" {{ app.request.get('terminees') ? 'checked' : '' }}>
+                        <label class="form-check-label" for="terminees">Sorties terminées</label>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-12">
+            <!-- Div droite : Bouton de recherche -->
+            <div class="form-right">
                 <button type="submit" class="btn btn-outline-dark">Rechercher</button>
             </div>
         </form>
@@ -102,16 +105,14 @@
                         <a href="{{ path('app_sorties_detail', {id: sortie.id}) }}" class="btn btn-info btn-sm">Afficher</a>
                         {% if sortie.etat.libelle == 'Ouverte' %}
                             {% if app.user in sortie.inscrits %}
-                                    <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Se désister</a>
-                                {% else %}
-                                    <a href="{{ path('app_sorties_register', {id: sortie.id}) }}" class="btn btn-success btn-sm">S'inscrire</a>
+                                <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Se désister</a>
+                            {% else %}
+                                <a href="{{ path('app_sorties_register', {id: sortie.id}) }}" class="btn btn-success btn-sm">S'inscrire</a>
                             {% endif %}
-
                         {% elseif sortie.etat.libelle == 'En cours' %}
                             <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Se désister</a>
-
                         {% elseif (sortie.etat.libelle == 'En création' and  app.user.administrateur) %}
-                                <a href="{{ path('app_sorties_update', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                            <a href="{{ path('app_sorties_update', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
                         {% endif %}
                     </td>
                 </tr>
@@ -122,6 +123,10 @@
             {% endfor %}
             </tbody>
         </table>
+        <div class="d-flex justify-content-center">
+            {{ knp_pagination_render(sorties) }}
+        </div>
+
 
         <a href="{{ path('app_sorties_create') }}" class="btn btn-primary">Créer une Sortie</a>
     </div>

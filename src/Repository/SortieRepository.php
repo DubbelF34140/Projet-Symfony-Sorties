@@ -64,6 +64,11 @@ class SortieRepository extends ServiceEntityRepository
             }
         }
 
+        $historique = $etatRepository->findEtatHistorise();
+
+        $qb->andWhere('s.etat != :historique')
+            ->setParameter('historique', $historique);
+
         return $qb->getQuery()->getResult();
     }
 

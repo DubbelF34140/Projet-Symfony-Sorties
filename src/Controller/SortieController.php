@@ -9,6 +9,7 @@ use App\Repository\EtatRepository;
 use App\Repository\SortieRepository;
 use App\Service\SortieStatusService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,8 +19,15 @@ use Symfony\Component\Routing\Annotation\Route;
 class SortieController extends AbstractController
 {
     #[Route('/sortie', name: 'app_sortie')]
-    public function index(Request $request, SortieRepository $sortieRepository, CampusRepository $campusRepository, EtatRepository $etatRepository, SortieStatusService $service, LoggerInterface $logger): Response
-    {
+    public function index(
+        Request $request,
+        SortieRepository $sortieRepository,
+        CampusRepository $campusRepository,
+        EtatRepository $etatRepository,
+        SortieStatusService $service,
+        LoggerInterface $logger,
+        PaginatorInterface $paginator
+    ): Response {
         // Récupérer l'utilisateur connecté
         $user = $this->getUser();
 
@@ -39,7 +47,16 @@ class SortieController extends AbstractController
 
         $campus = $request->query->get('campus', null);
         $campuss = $campusRepository->findAll();
-        $sorties = $sortieRepository->searchSorties($filters, $etatRepository);
+
+        // Recherche des sorties avec les filtres appliqués
+        $query = $sortieRepository->searchSorties($filters, $etatRepository);
+
+        // Pagination des résultats
+        $sorties = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
 
         return $this->render('sortie/index.html.twig', [
             'sorties' => $sorties,
@@ -102,7 +119,7 @@ class SortieController extends AbstractController
         $entityManager->persist($sortie);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Vous êtes inscrit à la sortie.');
+        $this->addFlash('success', ('Vous êtes inscrit à la sortie: ' . $sortie->getNom()));
 
         return $this->redirectToRoute('app_sortie');
     }
@@ -127,7 +144,7 @@ class SortieController extends AbstractController
         $entityManager->persist($sortie);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Vous êtes désinscrit à la sortie.');
+        $this->addFlash('success', ('Vous êtes désinscrit à la sortie: ' . $sortie->getNom()));
 
         return $this->redirectToRoute('app_sortie');
     }
