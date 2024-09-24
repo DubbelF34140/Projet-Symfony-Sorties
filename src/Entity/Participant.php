@@ -26,7 +26,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, unique: true)]
     private ?string $pseudo = null;
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?string $photo = null;
 
     /**
