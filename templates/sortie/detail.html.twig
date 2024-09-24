@@ -41,6 +41,14 @@
                         <p class="card-text"><strong>Organisateur :</strong> {{ sortie.organisateur.pseudo }}</p>
                     </div>
                 </div>
+                {% if sortie.etat.libelle == 'Annulée' %}
+                    <div class="card mb-2 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Détails de l'annulation</h5>
+                            <p class="card-text">{{ sortie.infosuppr }}</p>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
         </div>
 
