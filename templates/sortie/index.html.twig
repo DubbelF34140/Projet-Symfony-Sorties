@@ -101,12 +101,24 @@
                             X
                         {% endif %}
                     </td>
-                    <td><a href="{{ path('app_participant_view', {id: sortie.organisateur.id}) }}">{{ sortie.organisateur.nom }}</a></td>
+                {% if sortie.organisateur %}
+                <td><a href="{{ path('app_participant_view', {id: sortie.organisateur.id}) }}">{{ sortie.organisateur.nom }}</a></td>
+            {% else %}
+                <td></td>
+                {% endif %}
                     <td>
                         <a href="{{ path('app_sorties_detail', {id: sortie.id}) }}" class="btn btn-info btn-sm">Afficher</a>
-                        {% if app.user.pseudo == sortie.organisateur.pseudo and sortie.etat.libelle == "Ouverte"  %}
-                        <a href="{{ path('app_sortie_annuler', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Annuler</a>
+
+                        {% if sortie.organisateur %}
+                            {% if app.user.pseudo == sortie.organisateur.pseudo and sortie.etat.libelle == "Ouverte" %}
+                                <a href="{{ path('app_sortie_annuler', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Annuler</a>
+                            {% endif %}
+
+                            {% if app.user.administrateur and app.user.pseudo != sortie.organisateur.pseudo and sortie.etat.libelle == "Ouverte" %}
+                                <a href="{{ path('app_admin_sortie_annuler', {id: sortie.id}) }}" class="btn btn-danger btn-sm">Annuler (Admin)</a>
+                            {% endif %}
                         {% endif %}
+
                         {% if sortie.etat.libelle == 'Ouverte' %}
                             {% if app.user in sortie.inscrits %}
                                 <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Se désister</a>
@@ -116,8 +128,8 @@
                         {% elseif sortie.etat.libelle == 'En cours' %}
                             <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Se désister</a>
 
-                        {% elseif (sortie.etat.libelle == 'En création' and  app.user.pseudo == sortie.organisateur.pseudo) %}
-                                <a href="{{ path('app_sorties_update', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                        {% elseif sortie.etat.libelle == 'En création' and app.user.pseudo == sortie.organisateur.pseudo %}
+                            <a href="{{ path('app_sorties_update', {id: sortie.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
                         {% endif %}
                     </td>
                 </tr>

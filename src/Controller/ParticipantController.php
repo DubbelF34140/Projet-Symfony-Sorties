@@ -6,7 +6,10 @@ use App\Entity\Participant;
 use App\Form\ChangePasswordType;
 use App\Form\ParticipantEditType;
 use App\Form\ParticipantRegisterType;
+use App\Repository\EtatRepository;
 use App\Repository\ParticipantRepository;
+use App\Repository\SortieRepository;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -95,6 +98,27 @@ class ParticipantController extends AbstractController
             'participants' => $participants,
         ]);
     }
+
+    #[Route('/admin/participant/{id}/delete', name: 'app_participant_admin_delete')]
+    public function admindelete(
+        ParticipantRepository $participantRepository,
+        SortieRepository $sortieRepository,
+        EtatRepository $etatRepository,
+        int $id,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $participant = $participantRepository->find($id);
+
+        if (!$participant) {
+            return $this->redirectToRoute('app_participant_admin', [], Response::HTTP_NOT_FOUND);
+        }
+
+        // Supprimer les associations du participant et le participant lui-même
+        $participantRepository->removeParticipantAndUpdateSorties($participant, $entityManager, $sortieRepository, $etatRepository);
+
+        return $this->redirectToRoute('app_participant_admin');
+    }
+
 
     #[Route('admin/participant/register', name: 'app_participant_register')]
     public function register(Request $request, EntityManagerInterface $em,  UserPasswordHasherInterface $passwordHasher): Response

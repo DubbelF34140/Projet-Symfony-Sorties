@@ -314,4 +314,49 @@ class SortieController extends AbstractController
         return $this->json($sorties, Response::HTTP_OK, [], ['groups' => 'sortie:list']);
     }
 
+    #[Route('/admin/sortie/{id}/annuler', name: 'app_admin_sortie_annuler')]
+    public function annulerSortie(
+        int $id,
+        SortieRepository $sortieRepository,
+        EtatRepository $etatRepository,
+        EntityManagerInterface $entityManager,
+        Request $request
+    ): Response {
+        // Récupérer la sortie via l'ID
+        $sortie = $sortieRepository->find($id);
+
+        if (!$sortie) {
+            return $this->redirectToRoute('app_sortie', [], Response::HTTP_NOT_FOUND);
+        }
+
+        // Vérifier si la sortie est déjà commencée ou terminée
+        $now = new \DateTime();
+        if ($sortie->getDateHeureDebut() < $now) {
+            $this->addFlash('error', 'La sortie a déjà commencé ou est terminée, elle ne peut pas être annulée.');
+            return $this->redirectToRoute('app_sortie');
+        }
+
+        // Récupérer l'état "Annulée"
+        $etatAnnule = $etatRepository->findEtatAnnulee();
+        if (!$etatAnnule) {
+            throw new \Exception('État "Annulée" non trouvé dans la base de données.');
+        }
+
+        // Si l'état est valide, annuler la sortie
+        $sortie->setEtat($etatAnnule);
+
+        // Ajouter un motif d'annulation optionnel
+        $motifAnnulation = $request->request->get('motif_annulation');
+        if ($motifAnnulation) {
+            $sortie->setInfosuppr($motifAnnulation);
+        }
+
+        // Enregistrer les changements
+        $entityManager->persist($sortie);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'La sortie a été annulée avec succès.');
+        return $this->redirectToRoute('app_sortie');
+    }
+
 }

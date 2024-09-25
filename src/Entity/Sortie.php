@@ -59,7 +59,7 @@ class Sortie
     private ?Lieu $lieu = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: "SET NULL")]
     #[Groups(['sortie:list'])]
     private ?Participant $organisateur = null;
 
