@@ -38,7 +38,9 @@
                         <p class="card-text"><strong>Durée :</strong> {{ sortie.duree }} minutes</p>
                         <p class="card-text"><strong>Latitude/Longitude :</strong> {{ sortie.lieu.latitude }}/{{ sortie.lieu.longitude }}</p>
                         <p class="card-text"><strong>Description :</strong> {{ sortie.infosSortie }}</p>
-                        <p class="card-text"><strong>Organisateur :</strong> {{ sortie.organisateur.pseudo }}</p>
+                        {% if sortie.organisateur %}
+                            <p class="card-text"><strong>Organisateur :</strong> {{ sortie.organisateur.pseudo }}</p>
+                        {% endif %}
                     </div>
                 </div>
                 {% if sortie.etat.libelle == 'Annulée' %}
@@ -50,6 +52,11 @@
                     </div>
                 {% endif %}
             </div>
+        </div>
+
+        <div>
+            <h2>Localisation</h2>
+            <div id="map" style="height: 400px; width: 100%;"></div>
         </div>
 
         <h2 class="mt-5 mb-3">Liste des Participants</h2>
@@ -81,4 +88,34 @@
 
         <a href="{{ path('app_sortie') }}" class="btn btn-secondary mt-3">Retour à la liste des sorties</a>
     </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <!-- Inclure Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+
+    <!-- Inclure Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Coordonnées latitude et longitude de la sortie
+            const latitude = {{ sortie.lieu.latitude }};
+            const longitude = {{ sortie.lieu.longitude }};
+
+            // Initialisation de la carte
+            const map = L.map('map').setView([latitude, longitude], 13);
+
+            // Ajouter une couche de tuiles (carte de fond)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            // Ajouter un marqueur aux coordonnées de la sortie
+            L.marker([latitude, longitude]).addTo(map)
+                .bindPopup("{{ sortie.lieu.nom }}")
+                .openPopup();
+        });
+    </script>
 {% endblock %}
