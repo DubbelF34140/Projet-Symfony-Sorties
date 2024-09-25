@@ -14,8 +14,17 @@ use Symfony\Component\Routing\Annotation\Route;
 class VilleController extends AbstractController
 {
     #[Route('/admin/ville', name: 'app_ville', methods: ['GET', 'POST'])]
-    public function index(Request $request, VilleRepository $villeRepository, EntityManagerInterface $entityManager): Response
+    public function index(Request $request,
+                          VilleRepository $villeRepository,
+                          EntityManagerInterface $entityManager): Response
     {
+        //récup du filtre
+        $filter = ['nom' => $request->query->get('nom')];
+
+        //Recherche des villes avec filtre
+        $villes = $villeRepository->searchVilles($filter);
+        //dump($query);
+
         $ville = new Ville();
         $form = $this->createForm(VilleType::class, $ville);
         $form->handleRequest($request);
@@ -23,13 +32,13 @@ class VilleController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($ville);
             $entityManager->flush();
-
-            return $this->redirectToRoute('app_ville');
+            return $this->redirectToRoute('app_ville', ['up' => false]);
         }
 
         return $this->render('ville/admin.html.twig', [
-            'villes' => $villeRepository->findAll(),
+            'villes' => $villes,
             'form' => $form->createView(),
+            'up' => false
         ]);
     }
 

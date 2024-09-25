@@ -6,6 +6,7 @@ use App\Entity\Participant;
 use App\Form\ChangePasswordType;
 use App\Form\ParticipantEditType;
 use App\Form\ParticipantRegisterType;
+use App\Repository\CampusRepository;
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,6 +19,14 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
 
 class ParticipantController extends AbstractController
 {
+    private CampusRepository $campusRepository;
+    private ParticipantRepository $participantRepository;
+    public function __construct(CampusRepository $campusRepository,
+                                ParticipantRepository $participantRepository)
+    {
+        $this->campusRepository = $campusRepository;
+        $this->participantRepository = $participantRepository;
+    }
     #[Route('/participant/{id}/edit', name: 'app_participant_edit')]
     public function edit(Request $request, Participant $participant, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response {
         if (!$this->isGranted('ROLE_ADMIN') && $this->getUser() !== $participant) {
@@ -124,5 +133,50 @@ class ParticipantController extends AbstractController
         return $this->render('participant/register.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    #[Route('admin/participant/register/csv', name: 'app_participant_register_csv')]
+    public function registerCSV(Request $request, EntityManagerInterface $em,  UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $row = 1;
+        $datas[] = [];
+        if (($csv= fopen("uploads/import/utilisateurs.csv", "r"))) {
+
+            while (($data = fgetcsv($csv, 1000, ";"))) {
+                $num = count($data);
+                $datas[$row] = $data;
+                $row++;
+            }
+            fclose($csv);
+        }
+        //dump($datas);
+        $users[]=[];
+        for($i = 2; $i < count($datas); $i++){
+            $userF = new Participant();
+            $userF->setPseudo($datas[$i][2])
+                ->setEmail($datas[$i][8])
+                ->setNom($datas[$i][0])
+                ->setPrenom($datas[$i][1])
+                ->setTelephone($datas[$i][3])
+                ->setAdministrateur($datas[$i][4])
+                ->setActif($datas[$i][5])
+                ->setPassword($passwordHasher->hashPassword($userF, $datas[$i][10]))
+                ->setCampus($this->campusRepository->find($datas[$i][7]))
+                ->setFirstconnection($datas[$i][6]);
+            $userF->setRoles($datas[$i][9] != "" ? [$datas[$i][9]] : []  );
+            dump($userF);
+
+            $userDB = $this->participantRepository->findBy(['pseudo' => $userF->getPseudo()]);
+            dump($userDB);
+            if(!$userDB){
+                $em->persist($userF);
+                $users[] = $userF;
+            }
+        }
+        dump($users);
+        // Sauvegarde des utilisateurs dans la base
+        $em->flush();
+
+        return $this->redirectToRoute('app_participant_admin'); // Redirection vers la liste des participants
     }
 }
