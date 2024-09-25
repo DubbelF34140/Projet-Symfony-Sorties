@@ -8,6 +8,7 @@ use App\Form\ResetPasswordRequestFormType;
 use App\Repository\ParticipantRepository;
 use App\Repository\ResetTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Random\RandomException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,6 +74,7 @@ class SecurityController extends AbstractController
     /**
      * @throws RandomException
      * @throws TransportExceptionInterface
+     * @throws RandomException
      */
     #[Route('/reset_password', name: 'app_reset_password_request')]
     public function resetPasswordRequest(Request $request, EntityManagerInterface $entityManager, ParticipantRepository $participantRepository, MailerInterface $mailer): Response
@@ -92,7 +94,7 @@ class SecurityController extends AbstractController
 
                 // Sauvegarder le token et son expiration en base de données ou en session (à implémenter)
                 $resetToken = new ResetToken();
-                $resetToken->setId($user->getId());
+                $resetToken->setUserId($user->getId());
                 $resetToken->setToken($token);
                 $resetToken->setExpiration((new \DateTime())->add(new \DateInterval('PT1H')));
                 $entityManager->persist($resetToken);
@@ -129,7 +131,7 @@ class SecurityController extends AbstractController
         $participant = null;
         $tokenFound = $resetTokenRepository->findOneBy(['token' => $token]);
         if ($tokenFound && $tokenFound->getExpiration() > new \DateTime('now')) {
-            $participant = $participantRepository->findOneBy(['id' => $tokenFound->getId()]);
+            $participant = $participantRepository->findOneBy(['id' => $tokenFound->getUserId()]);
         }
 
         if ($form->isSubmitted() && $form->isValid() && $participant) {

@@ -10,8 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
 class ResetToken
 {
     #[ORM\Id]
+    #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\Column(length: 255)]
+    private ?int $userId = null;
 
     #[ORM\Column(length: 255)]
     private ?string $token = null;
@@ -22,6 +26,18 @@ class ResetToken
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(?int $userId): static
+    {
+        $this->userId = $userId;
+
+        return $this;
     }
 
     public function getToken(): ?string
@@ -44,13 +60,6 @@ class ResetToken
     public function setExpiration(\DateTimeInterface $expiration): static
     {
         $this->expiration = $expiration;
-
-        return $this;
-    }
-
-    public function setId(?int $id): static
-    {
-        $this->id = $id;
 
         return $this;
     }
