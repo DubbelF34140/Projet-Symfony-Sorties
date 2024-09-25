@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le campus{% endblock %}
+
+{% block body %}
+    <h1>Modifier le campus</h1>
+
+    {{ form_start(form) }}
+    <div class="form-group">
+        {{ form_label(form.nom, 'Nom du campus') }}
+        {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+        <div class="text-danger">
+            {{ form_errors(form.nom) }}
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">Modifier</button>
+    {{ form_end(form) }}
+
+    <a href="{{ path('app_campus') }}" class="btn btn-secondary mt-4">Retour à la liste des campus</a>
+{% endblock %}
