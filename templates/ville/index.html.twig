@@ -1,20 +1,127 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello VilleController!{% endblock %}
+{% block title %}Gestion des villes{% endblock %}
+
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <div class="container mt-4">
+        <h1>Gestion des villes</h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+{#        <form method="get" action="{{ path('app_sortie') }}" class="form-container">#}
+{#            <!-- Div gauche : Campus, Nom de la sortie, Dates -->#}
+{#            <div class="form-left">#}
+{#                <div class="form-group">#}
+{#                    <label for="campus" class="form-label">Campus</label>#}
+{#                    <select name="campus" id="campus" class="form-select">#}
+{#                        <option value="">Tous</option>#}
+{#                        {% for campus in campuss %}#}
+{#                            <option value="{{ campus.id }}" {% if campus.id == app.request.query.get('campus') %}selected{% endif %}>#}
+{#                                {{ campus.nom }}#}
+{#                            </option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                </div>#}
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/Users/ylanwoelffle/PhpstormProjects/sortie/src/Controller/VilleController.php</code></li>
-        <li>Your template at <code>/Users/ylanwoelffle/PhpstormProjects/sortie/templates/ville/index.html.twig</code></li>
-    </ul>
-</div>
+{#                <div class="form-group">#}
+{#                    <label for="nom" class="form-label">Le nom de la ville contient</label>#}
+{#                    <div class="input-group">#}
+{#                        <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}" class="form-control" placeholder="search">#}
+{#                    </div>#}
+{#                </div>#}
+
+{#                <div class="dates-group">#}
+{#                    <div class="form-group">#}
+{#                        <label for="dateDebut" class="form-label">Entre</label>#}
+{#                        <input type="date" name="dateDebut" id="dateDebut" value="{{ app.request.get('dateDebut') }}" class="form-control">#}
+{#                        <label for="dateFin" class="form-label">et</label>#}
+{#                        <input type="date" name="dateFin" id="dateFin" value="{{ app.request.get('dateFin') }}" class="form-control">#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+
+{#            <!-- Div milieu : Checkboxes -->#}
+{#            <div class="form-middle">#}
+{#                <div class="checkboxes">#}
+{#                    <div class="form-check">#}
+{#                        <input class="form-check-input" type="checkbox" name="organisateur" value="1" id="organisateur" {{ app.request.get('organisateur') ? 'checked' : '' }}>#}
+{#                        <label class="form-check-label" for="organisateur">Sorties dont je suis l'organisateur/trice</label>#}
+{#                    </div>#}
+
+{#                    <div class="form-check">#}
+{#                        <input class="form-check-input" type="checkbox" name="inscrit" value="1" id="inscrit" {{ app.request.get('inscrit') ? 'checked' : '' }}>#}
+{#                        <label class="form-check-label" for="inscrit">Sorties auxquelles je suis inscrit/e</label>#}
+{#                    </div>#}
+
+{#                    <div class="form-check">#}
+{#                        <input class="form-check-input" type="checkbox" name="nonInscrit" value="1" id="nonInscrit" {{ app.request.get('nonInscrit') ? 'checked' : '' }}>#}
+{#                        <label class="form-check-label" for="nonInscrit">Sorties auxquelles je ne suis pas inscrit/e</label>#}
+{#                    </div>#}
+
+{#                    <div class="form-check">#}
+{#                        <input class="form-check-input" type="checkbox" name="terminees" value="1" id="terminees" {{ app.request.get('terminees') ? 'checked' : '' }}>#}
+{#                        <label class="form-check-label" for="terminees">Sorties terminées</label>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+
+{#            <!-- Div droite : Bouton de recherche -->#}
+{#            <div class="form-right">#}
+{#                <button type="submit" class="btn btn-outline-dark">Rechercher</button>#}
+{#            </div>#}
+{#        </form>#}
+
+        <h2 class="mt-4">Liste des villes</h2>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Ville</th>
+                <th>Code Postal</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for ville in villes %}
+                <tr>
+                    <td>{{ ville.nom }}</td>
+                    <td>{{ ville.codePostal }}</td>
+                    <td>
+                        <a href="{{ path('app_admin_ville_update', {id: ville.id}) }}" class="btn btn-warning">Modifier</a>
+                        <a href="{{ path('app_admin_ville_delete', {id: ville.id}) }}" class="btn btn-danger">Supprimer</a>
+                    </td>
+                </tr>
+            {% endfor %}
+                <tr>
+                    {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
+                    <td>
+                        {{ form_widget(form.nom) }}
+                        <div class="text-danger">
+                            {{ form_errors(form.nom) }}
+                        </div>
+                    </td>
+                    <td>
+                        {{ form_widget(form.codePostal) }}
+                        <div class="text-danger">
+                            {{ form_errors(form.codePostal) }}
+                        </div>
+                    </td>
+                    <td>
+                        <button type="submit" name="save" class="btn btn-primary">Ajouter</button>
+{#                        <a href="{{ path('app_admin_ville_create') }}" class="btn btn-primary">Ajouter</a>#}
+                    </td>
+                    {{ form_end(form) }}
+
+                </tr>
+            </tbody>
+        </table>
+{#        <div class="d-flex justify-content-center">#}
+{#            {{ knp_pagination_render(sorties) }}#}
+{#        </div>#}
+
+
+{#        <a href="{{ path('app_sorties_create') }}" class="btn btn-primary">Créer une Sortie</a>#}
+    </div>
 {% endblock %}

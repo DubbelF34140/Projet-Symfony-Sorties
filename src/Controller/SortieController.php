@@ -94,8 +94,6 @@ class SortieController extends AbstractController
             $entityManager->persist($sortie);
             $entityManager->flush();
 
-
-
             return $this->redirectToRoute('app_sortie');
         }
 
