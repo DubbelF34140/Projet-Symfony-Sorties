@@ -14,10 +14,10 @@ class DefaultController extends AbstractController
         return $this->redirectToRoute('app_sortie');
     }
 
-    #[Route('/logout', name: 'app_logout')]
-    public function logout(): Response
+    #[Route('/api/logout', name: 'api_logout', methods: ['POST'])]
+    public function apiLogout(): Response
     {
-        return $this->redirectToRoute('app_login');
+        return new Response("Logout success");
     }
 
     #[Route('/admin', name: 'app_admin')]
