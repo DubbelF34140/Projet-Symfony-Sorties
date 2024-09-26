@@ -138,12 +138,9 @@ class ParticipantController extends AbstractController
             ->getForm();
 
         $form->handleRequest($request);
-        dump($form);
         if ($form->isSubmitted() && $form->isValid()) {
             // data is an array with "name", "email", and "message" keys
             $file = $form->get('fichier')->getData();
-            dump($file);
-            dump($file->getClientOriginalExtension());
             if ($file) {
                 if($file->getClientOriginalExtension() != "csv"){
                     return $this->render('participant/admin.html.twig', [
@@ -153,7 +150,6 @@ class ParticipantController extends AbstractController
                 } else {
                     // Gérer le stockage du fichier
                     $filename = 'utilisateurs.csv'; // Générer un nom de fichier unique
-                    dump($filename);
                     $file->move($this->getParameter('fichierCSV_directory'), $filename); // Déplacez le fichier
                 }
             }

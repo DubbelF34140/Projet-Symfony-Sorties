@@ -32,13 +32,12 @@ class VilleController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($ville);
             $entityManager->flush();
-            return $this->redirectToRoute('app_ville', ['up' => false]);
+            return $this->redirectToRoute('app_ville');
         }
 
         return $this->render('ville/admin.html.twig', [
             'villes' => $villes,
-            'form' => $form->createView(),
-            'up' => false
+            'form' => $form->createView()
         ]);
     }
 

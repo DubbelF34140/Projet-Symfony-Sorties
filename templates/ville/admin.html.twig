@@ -14,6 +14,24 @@
             <div class="card-header bg-primary text-white">
                 <h2 class="mb-0">Gestion des Villes</h2>
             </div>
+
+            <form method="get" action="{{ path('app_ville') }}" class="form-container">
+                <!-- Div gauche : Campus, Nom de la sortie, Dates -->
+                <div class="form-left">
+                    <div class="form-group">
+                        <label for="nom" class="form-label">Le nom de la ville contient</label>
+                        <div class="input-group">
+                            <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}" class="form-control" placeholder="search">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Div droite : Bouton de recherche -->
+                <div class="form-right">
+                    <button type="submit" class="btn btn-outline-dark">Rechercher</button>
+                </div>
+            </form>
+
             <div class="card-body">
                 <table class="table table-hover table-bordered">
                     <thead class="table-light">
