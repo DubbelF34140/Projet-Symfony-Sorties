@@ -10,6 +10,19 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        api:
+            pattern: ^/api
+            stateless: false
+            json_login:
+                check_path: /api/login
+                username_path: login
+                password_path: password
+            provider: participant_provider
+            custom_authenticators:
+                - App\Security\SessionTokenAuthenticator
+            lazy: true
+            logout:
+                path: /api/logout
         main:
             lazy: true
             provider: participant_provider
@@ -38,7 +51,13 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        - { path: ^/api/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/logout, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/.*, roles: ROLE_USER }
+        - { path: ^/api/.*, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/login, roles: PUBLIC_ACCESS}
+        - { path: ^/reset_password, roles: PUBLIC_ACCESS }
+        - { path: ^/reset_password/.*, roles: PUBLIC_ACCESS}
         - { path: ^/logout, roles: PUBLIC_ACCESS}
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/admin/.*, roles: ROLE_ADMIN }

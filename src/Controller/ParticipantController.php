@@ -6,18 +6,32 @@ use App\Entity\Participant;
 use App\Form\ChangePasswordType;
 use App\Form\ParticipantEditType;
 use App\Form\ParticipantRegisterType;
+use App\Repository\CampusRepository;
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Constraint\IsTrue;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\String\Slugger\AsciiSlugger;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class ParticipantController extends AbstractController
 {
+    private CampusRepository $campusRepository;
+    private ParticipantRepository $participantRepository;
+    public function __construct(CampusRepository $campusRepository,
+                                ParticipantRepository $participantRepository)
+    {
+        $this->campusRepository = $campusRepository;
+        $this->participantRepository = $participantRepository;
+    }
     #[Route('/participant/{id}/edit', name: 'app_participant_edit')]
     public function edit(Request $request, Participant $participant, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response {
         if (!$this->isGranted('ROLE_ADMIN') && $this->getUser() !== $participant) {
@@ -87,12 +101,95 @@ class ParticipantController extends AbstractController
     }
 
     #[Route('/participant/admin', name: 'app_participant_admin')]
-    public function admin(ParticipantRepository $participantRepository): Response
+    public function admin(Request $request,
+                          ParticipantRepository $participantRepository,
+                          UserPasswordHasherInterface $passwordHasher,
+                          EntityManagerInterface $em): Response
     {
         $participants = $participantRepository->findAll();
 
+        $defaultData = ['message' => 'Récup File'];
+        $form = $this->createFormBuilder($defaultData)
+            ->add('fichier', FileType::class, [
+                'required' => false,
+//                'constraints' => [
+//                    new Assert\Callback([
+//                        // Ici $value prend la valeur du champs que l'on est en train de valider,
+//                        // ainsi, pour un champs de type TextType, elle sera de type string.
+//                        'callback' => static function (?FileType $value, ExecutionContextInterface $context) {
+//                            if (!$value) {
+//                                return;
+//                            }
+//
+//                            if ($value->get('fichier')->getData()->getClientOriginalExtension() != "csv") {
+//                                $context
+//                                    ->buildViolation('Le fichier doit être un fichier csv')
+//                                    ->atPath('[fichier]')
+//                                    ->addViolation()
+//                                ;
+//                            }
+//                        },
+//                    ]),
+//                ],
+            ])
+            ->getForm();
+
+        $form->handleRequest($request);
+        dump($form);
+        if ($form->isSubmitted() && $form->isValid()) {
+            // data is an array with "name", "email", and "message" keys
+            $file = $form->get('fichier')->getData();
+            dump($file);
+            dump($file->getClientOriginalExtension());
+            if ($file) {
+                if($file->getClientOriginalExtension() != "csv"){
+                    return $this->render('participant/admin.html.twig', [
+                        'participants' => $participants,
+                        'form' => $form->createView(),
+                    ]);
+                } else {
+                    // Gérer le stockage du fichier
+                    $filename = 'utilisateurs.csv'; // Générer un nom de fichier unique
+                    dump($filename);
+                    $file->move($this->getParameter('fichierCSV_directory'), $filename); // Déplacez le fichier
+                }
+            }
+            $row = 1;
+            $datas[] = [];
+            if (($csv= fopen("uploads/import/utilisateurs.csv", "r"))) {
+                while (($data = fgetcsv($csv, 1000, ";"))) {
+                    $datas[$row] = $data;
+                    $row++;
+                }
+                fclose($csv);
+            }
+            for($i = 2; $i < count($datas); $i++){
+                $userF = new Participant();
+                $userF->setPseudo($datas[$i][2])
+                    ->setEmail($datas[$i][8])
+                    ->setNom($datas[$i][0])
+                    ->setPrenom($datas[$i][1])
+                    ->setTelephone($datas[$i][3])
+                    ->setAdministrateur($datas[$i][4])
+                    ->setActif($datas[$i][5])
+                    ->setPassword($passwordHasher->hashPassword($userF, $datas[$i][10]))
+                    ->setCampus($this->campusRepository->find($datas[$i][7]))
+                    ->setFirstconnection($datas[$i][6]);
+                $userF->setRoles($datas[$i][9] != "" ? [$datas[$i][9]] : []  );
+
+                $userDB = ($this->participantRepository->findOneBy(['pseudo' => $userF->getPseudo()]));
+                if(!$userDB){
+                    $em->persist($userF);
+                }
+            }
+            // Sauvegarde des utilisateurs dans la base
+            $em->flush();
+            return $this->redirectToRoute('app_participant_admin');
+        }
+
         return $this->render('participant/admin.html.twig', [
             'participants' => $participants,
+            'form' => $form->createView(),
         ]);
     }
 
@@ -124,5 +221,55 @@ class ParticipantController extends AbstractController
         return $this->render('participant/register.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    #[Route('admin/participant/register/csv', name: 'app_participant_register_csv', methods: ['POST'])]
+    public function registerCSV(Request $request, EntityManagerInterface $em,  UserPasswordHasherInterface $passwordHasher): Response
+    {
+        $a = 2;
+        dump($a);
+        dump($request);
+
+
+        $row = 1;
+        $datas[] = [];
+        if (($csv= fopen("uploads/import/utilisateurs.csv", "r"))) {
+
+            while (($data = fgetcsv($csv, 1000, ";"))) {
+                $num = count($data);
+                $datas[$row] = $data;
+                $row++;
+            }
+            fclose($csv);
+        }
+        //dump($datas);
+        $users[]=[];
+        for($i = 2; $i < count($datas); $i++){
+            $userF = new Participant();
+            $userF->setPseudo($datas[$i][2])
+                ->setEmail($datas[$i][8])
+                ->setNom($datas[$i][0])
+                ->setPrenom($datas[$i][1])
+                ->setTelephone($datas[$i][3])
+                ->setAdministrateur($datas[$i][4])
+                ->setActif($datas[$i][5])
+                ->setPassword($passwordHasher->hashPassword($userF, $datas[$i][10]))
+                ->setCampus($this->campusRepository->find($datas[$i][7]))
+                ->setFirstconnection($datas[$i][6]);
+            $userF->setRoles($datas[$i][9] != "" ? [$datas[$i][9]] : []  );
+            dump($userF);
+
+            $userDB = $this->participantRepository->findBy(['pseudo' => $userF->getPseudo()]);
+            dump($userDB);
+            if(!$userDB){
+                $em->persist($userF);
+                $users[] = $userF;
+            }
+        }
+        dump($users);
+        // Sauvegarde des utilisateurs dans la base
+        $em->flush();
+
+        return $this->redirectToRoute('app_participant_admin'); // Redirection vers la liste des participants
     }
 }

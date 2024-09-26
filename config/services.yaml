@@ -5,8 +5,13 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     photos_directory: '%kernel.project_dir%/public/uploads/photos'
+    fichierCSV_directory: '%kernel.project_dir%/public/uploads/import'
 
 services:
+    App\EventListener\SessionTokenListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.response }
+
     App\Security\LoginSuccessHandler:
         arguments:
             $router: '@router'

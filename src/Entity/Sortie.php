@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 
@@ -16,51 +17,62 @@ class Sortie
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['sortie:list'])]
     private ?int $id = null;
 
     #[Assert\NotBlank(message: 'Le nom ne doit pas être vide')]
     #[ORM\Column(length: 255)]
+    #[Groups(['sortie:list'])]
     private ?string $nom = null;
 
     #[Assert\NotBlank(message: 'La date ne doit pas être vide')]
     #[Assert\GreaterThanOrEqual('today', message: 'La date de début doit être supérieure ou égale à aujourd\'hui')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['sortie:list'])]
     private ?\DateTimeInterface $dateHeureDebut = null;
 
     #[Assert\NotBlank(message: 'La date ne doit pas être vide')]
     #[Assert\LessThanOrEqual(propertyPath: 'dateHeureDebut', message: 'La date limite d\'inscription doit être inférieure ou égale à la date de début')]
     #[Assert\GreaterThanOrEqual('today', message: 'La date limite d\'inscription doit être supérieure ou égale à aujourd\'hui')]
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['sortie:list'])]
     private ?\DateTimeInterface $dateLimiteInscription = null;
 
 
     #[Assert\GreaterThanOrEqual('1', message: 'Le nombre de places doit être supérieur à 1' )]
     #[ORM\Column]
+    #[Groups(['sortie:list'])]
     private ?int $nbInscriptionMax = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['sortie:list'])]
     private ?string $infosSortie = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['sortie:list'])]
     private ?Etat $etat = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['sortie:list'])]
     private ?Lieu $lieu = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['sortie:list'])]
     private ?Participant $organisateur = null;
 
     /**
      * @var Collection<int, Participant>
      */
     #[ORM\ManyToMany(targetEntity: Participant::class)]
+    #[Groups(['sortie:list'])]
     private Collection $inscrits;
 
     #[ORM\ManyToOne(inversedBy: 'sorties')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['sortie:list'])]
     private ?Campus $campus = null;
 
     #[Assert\Type(
@@ -69,6 +81,7 @@ class Sortie
     )]
     #[Assert\GreaterThanOrEqual('1', message: 'La durée (en min) doit être supérieure à 1' )]
     #[ORM\Column(type: 'integer')]
+    #[Groups(['sortie:list'])]
     private ?int $duree = null;
 
     #[ORM\Column(length: 255, nullable: true)]

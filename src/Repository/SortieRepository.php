@@ -16,7 +16,7 @@ class SortieRepository extends ServiceEntityRepository
         parent::__construct($registry, Sortie::class);
     }
 
-    public function searchSorties(array $filters = [], EtatRepository $etatRepository)
+    public function searchSorties(EtatRepository $etatRepository, array $filters = [])
     {
         $qb = $this->createQueryBuilder('s');
 
@@ -96,4 +96,28 @@ class SortieRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    /**
+     * @throws \Exception
+     */
+    public function findByFilters(EtatRepository $etatRepository, ?string $etat = null, ?\DateTimeInterface $date = null)
+    {
+        $qb = $this->createQueryBuilder('s')
+            ->join('s.etat', 'e') // Associe l'état à la sortie
+            ->where('e.libelle != :etatCreation')
+            ->andWhere('e.libelle != :etatTermine')
+            ->setParameter('etatCreation', $etatRepository->findEtatCreation()->getLibelle())
+            ->setParameter('etatTermine', $etatRepository->findEtatFinish()->getLibelle());
+
+        if ($etat) {
+            $qb->andWhere('e.libelle = :etat')
+                ->setParameter('etat', $etat);
+        }
+
+        if ($date) {
+            $qb->andWhere('s.dateHeureDebut >= :date')
+                ->setParameter('date', $date);
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

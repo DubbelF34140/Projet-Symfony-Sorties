@@ -6,6 +6,7 @@ use App\Repository\CampusRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: CampusRepository::class)]
 class Campus
@@ -16,6 +17,7 @@ class Campus
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['sortie:list'])]
     private ?string $nom = null;
 
     /**

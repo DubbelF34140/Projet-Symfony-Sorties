@@ -6,6 +6,7 @@ use App\Repository\VilleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: VilleRepository::class)]
@@ -25,11 +26,13 @@ class Ville
         maxMessage: 'Le nom ne doit pas contenir plus de 50 caractères'
     )]
     #[ORM\Column(length: 255)]
+    #[Groups(['sortie:list'])]
     private ?string $nom = null;
 
     #[Assert\NotBlank(message: 'Le CP ne doit pas être vide')]
     #[Assert\Length(exactly: 5, message: 'Le CP doit être composé de 5 chiffres')]
     #[ORM\Column(length: 255)]
+    #[Groups(['sortie:list'])]
     private ?string $codePostal = null;
 
     /**

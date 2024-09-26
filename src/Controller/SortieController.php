@@ -14,8 +14,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class SortieController extends AbstractController
@@ -51,7 +53,7 @@ class SortieController extends AbstractController
         $campuss = $campusRepository->findAll();
 
         // Recherche des sorties avec les filtres appliqués
-        $query = $sortieRepository->searchSorties($filters, $etatRepository);
+        $query = $sortieRepository->searchSorties($etatRepository, $filters);
 
         dump($query);
 
@@ -72,7 +74,7 @@ class SortieController extends AbstractController
     }
 
     #[Route('/sorties/create', name: 'app_sorties_create')]
-    public function create(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository, VilleRepository $villeRepository): Response
+    public function create(Request $request, SessionInterface $session, EntityManagerInterface $entityManager, EtatRepository $etatRepository, VilleRepository $villeRepository): Response
     {
         $villes = $villeRepository->findAll();
 
@@ -100,6 +102,7 @@ class SortieController extends AbstractController
         return $this->render('sortie/create.html.twig', [
             'form' => $form->createView(),
             'villes' => $villes,
+            'sessionId' => $session->getId()
         ]);
     }
 
@@ -177,6 +180,7 @@ class SortieController extends AbstractController
 
     #[Route('sorties/{id<\d+>}/update', name: 'app_sorties_update', methods: ['GET', 'POST'])]
     public function update(Request $request,
+                           SessionInterface $session,
                            Sortie $sortie,
                            sortieRepository $sortieRepo ,
                            etatRepository $etatRepository,
@@ -208,6 +212,7 @@ class SortieController extends AbstractController
             'form' => $sortieForm,
             'sortie' => $sortie,
             'villes' => $villes,
+            'sessionId' => $session->getId()
         ]);
     }
 
@@ -279,5 +284,38 @@ class SortieController extends AbstractController
         ]);
     }
 
-}
 
+    /**
+     * @throws \Exception
+     */
+    #[Route('/api/sorties', name: 'api_sorties', methods: ['POST'])]
+    public function list(SortieRepository $sortieRepository, Request $request, EtatRepository $etatRepository): JsonResponse
+    {
+        // Récupérer les données JSON envoyées dans la requête
+        $data = json_decode($request->getContent(), true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $date = $data['date'] ?? null;
+        $etat = $data['etat'] ?? null;
+
+        if ($date) {
+            try {
+                $dateTime = new \DateTime($date);
+            } catch (\Exception $e) {
+                return new JsonResponse(['error' => 'Invalid date format.'], Response::HTTP_BAD_REQUEST);
+            }
+        } else {
+            $dateTime = null;
+        }
+
+        // Utiliser le repository pour filtrer les sorties
+        $sorties = $sortieRepository->findByFilters($etatRepository, $etat, $dateTime);
+
+        // Retourner les résultats en JSON
+        return $this->json($sorties, Response::HTTP_OK, [], ['groups' => 'sortie:list']);
+    }
+
+}
