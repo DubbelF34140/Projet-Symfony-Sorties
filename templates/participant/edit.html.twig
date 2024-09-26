@@ -12,6 +12,14 @@
 
         <div class="row justify-content-center">
             <div class="col-md-6">
+                <div class="text-center mb-3">
+                    {% if participant.photo %}
+                        <img id="profilePreview" src="{{ asset('uploads/photos/' ~ participant.photo) }}" alt="Photo de profil" class="img-fluid rounded-circle" style="max-width: 150px; margin: auto;">
+                    {% else %}
+                        <img id="profilePreview" src="#" alt="Aucune photo de profil" class="img-fluid rounded-circle" style="max-width: 150px; display: none; margin: auto;">
+                    {% endif %}
+                </div>
+
                 {% for field in ['pseudo', 'email', 'nom', 'prenom', 'telephone'] %}
                     <div class="form-group mb-3">
                         {{ form_label(attribute(form, field), null, {'label_attr': {'class': 'form-label mr-2'}}) }}
@@ -19,6 +27,32 @@
                         {{ form_errors(attribute(form, field)) }}
                     </div>
                 {% endfor %}
+
+                <div class="form-group mb-3">
+                    {{ form_label(form.photo) }}
+                    {{ form_widget(form.photo, {'attr': {'class': 'form-control', 'accept': 'image/*', 'onchange': 'previewImage(event)'}}) }}
+                    {{ form_errors(form.photo) }}
+                </div>
+
+                {% if is_granted('ROLE_ADMIN') %}
+                    <div class="form-group mb-3">
+                        {{ form_label(form.campus) }}
+                        {{ form_widget(form.campus, {'attr': {'class': 'form-control'}}) }}
+                        {{ form_errors(form.campus) }}
+                    </div>
+
+                    <div class="form-group form-check mb-3">
+                        {{ form_widget(form.actif, {'attr': {'class': 'form-check-input'}}) }}
+                        {{ form_label(form.actif, 'Actif', {'label_attr': {'class': 'form-check-label'}}) }}
+                        {{ form_errors(form.actif) }}
+                    </div>
+                {% else %}
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <p class="card-text"><strong>Campus :</strong> {{ participant.campus.nom }}</p>
+                        </div>
+                    </div>
+                {% endif %}
 
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{{ path('app_participant_change_password', {id: participant.id}) }}" class="btn btn-secondary">Modifier le mot de passe</a>
@@ -29,4 +63,24 @@
 
         {{ form_end(form) }}
     </div>
+
+    {# Script JavaScript pour prévisualiser l'image #}
+    <script>
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('profilePreview');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block'; // Affiche l'image
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none'; // Cache l'image si aucun fichier
+            }
+        }
+    </script>
 {% endblock %}

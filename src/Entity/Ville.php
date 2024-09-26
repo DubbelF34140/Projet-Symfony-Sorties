@@ -6,8 +6,11 @@ use App\Repository\VilleRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: VilleRepository::class)]
+#[UniqueEntity(fields: ['nom'], message: 'Ce nom est déjà utilisé')]
+#[UniqueEntity(fields: ['codePostal'], message: 'Ce codePostal est déjà utilisé')]
 class Ville
 {
     #[ORM\Id]
@@ -15,9 +18,17 @@ class Ville
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\NotBlank(message: 'Le nom ne doit pas être vide')]
+    #[Assert\Length(
+        min: 1, max: 255,
+        minMessage: 'Le nom doit contenir au moins 1 caractère',
+        maxMessage: 'Le nom ne doit pas contenir plus de 50 caractères'
+    )]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
+    #[Assert\NotBlank(message: 'Le CP ne doit pas être vide')]
+    #[Assert\Length(exactly: 5, message: 'Le CP doit être composé de 5 chiffres')]
     #[ORM\Column(length: 255)]
     private ?string $codePostal = null;
 

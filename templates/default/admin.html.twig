@@ -1,0 +1,29 @@
+{# templates/admin/admin.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Page d'administration</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-md-4 mb-3">
+                <a href="{{ path('app_campus') }}" class="btn btn-primary btn-block btn-lg">
+                    Gérer les campus
+                </a>
+            </div>
+            <div class="col-md-4 mb-3">
+                <a href="{{ path('app_ville') }}" class="btn btn-primary btn-block btn-lg">
+                    Gérer les villes
+                </a>
+            </div>
+            <div class="col-md-4 mb-3">
+                <a href="{{ path('app_participant_admin') }}" class="btn btn-primary btn-block btn-lg">
+                    Gérer les utilisateurs
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

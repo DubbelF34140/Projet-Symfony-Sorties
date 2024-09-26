@@ -26,6 +26,8 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, unique: true)]
     private ?string $pseudo = null;
+    #[ORM\Column(nullable: true)]
+    private ?string $photo = null;
 
     /**
      * @var list<string> The user roles
@@ -49,7 +51,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $telephone = null;
 
     #[ORM\Column]
-    private ?bool $administrateur = null;
+    private bool $administrateur = false;
 
     #[ORM\Column]
     private bool $actif = true;
@@ -57,6 +59,9 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToOne(inversedBy: 'participants')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Campus $campus = null;
+
+    #[ORM\Column]
+    private bool $firstconnection = true;
 
     public function getId(): ?int
     {
@@ -83,6 +88,18 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPseudo(string $pseudo): static
     {
         $this->pseudo = $pseudo;
+
+        return $this;
+    }
+
+    public function getPhoto(): ?string
+    {
+        return $this->photo;
+    }
+
+    public function setPhoto(string $photo): static
+    {
+        $this->photo = $photo;
 
         return $this;
     }
@@ -215,6 +232,18 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCampus(?Campus $campus): static
     {
         $this->campus = $campus;
+
+        return $this;
+    }
+
+    public function isFirstconnection(): ?bool
+    {
+        return $this->firstconnection;
+    }
+
+    public function setFirstconnection(bool $firstconnection): static
+    {
+        $this->firstconnection = $firstconnection;
 
         return $this;
     }
