@@ -17,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class SortieController extends AbstractController
@@ -73,7 +74,7 @@ class SortieController extends AbstractController
     }
 
     #[Route('/sorties/create', name: 'app_sorties_create')]
-    public function create(Request $request, EntityManagerInterface $entityManager, EtatRepository $etatRepository, VilleRepository $villeRepository): Response
+    public function create(Request $request, SessionInterface $session, EntityManagerInterface $entityManager, EtatRepository $etatRepository, VilleRepository $villeRepository): Response
     {
         $villes = $villeRepository->findAll();
 
@@ -101,6 +102,7 @@ class SortieController extends AbstractController
         return $this->render('sortie/create.html.twig', [
             'form' => $form->createView(),
             'villes' => $villes,
+            'sessionId' => $session->getId()
         ]);
     }
 
@@ -178,6 +180,7 @@ class SortieController extends AbstractController
 
     #[Route('sorties/{id<\d+>}/update', name: 'app_sorties_update', methods: ['GET', 'POST'])]
     public function update(Request $request,
+                           SessionInterface $session,
                            Sortie $sortie,
                            sortieRepository $sortieRepo ,
                            etatRepository $etatRepository,
@@ -209,6 +212,7 @@ class SortieController extends AbstractController
             'form' => $sortieForm,
             'sortie' => $sortie,
             'villes' => $villes,
+            'sessionId' => $session->getId()
         ]);
     }
 

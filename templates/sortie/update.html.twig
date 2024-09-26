@@ -96,7 +96,14 @@
                     lieuSelect.disabled = false;
 
                     // Charger les lieux via Ajax
-                    fetch(`/api/lieux/${villeId}`)
+                    fetch(`/api/lieux/${villeId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + {{ sessionId }},
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    })
                         .then(response => response.json())
                         .then(data => {
                             // Vider le select des lieux

@@ -18,6 +18,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
@@ -77,7 +78,7 @@ class SecurityController extends AbstractController
      * @throws RandomException
      */
     #[Route('/reset_password', name: 'app_reset_password_request')]
-    public function resetPasswordRequest(Request $request, EntityManagerInterface $entityManager, ParticipantRepository $participantRepository, MailerInterface $mailer): Response
+    public function resetPasswordRequest(Request $request, UrlGeneratorInterface $urlGenerator, EntityManagerInterface $entityManager, ParticipantRepository $participantRepository, MailerInterface $mailer): Response
     {
         $form = $this->createForm(ResetPasswordRequestFormType::class);
         $form->handleRequest($request);
@@ -101,15 +102,18 @@ class SecurityController extends AbstractController
                 $entityManager->flush();
 
                 // Créer le lien de réinitialisation
-                $resetUrl = $this->generateUrl('app_reset_password', ['token' => $token], true);
+                $resetUrl = $urlGenerator->generate(
+                    'app_reset_password',
+                    ['token' => $token],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                );
 
                 // Envoyer l'e-mail
                 $email = (new Email())
-                    ->from('divydium@outlook.com')
+                    ->from('alexis.draud2023@campus-eni.fr')
                     ->to($user->getEmail())
                     ->subject('Réinitialisation de votre mot de passe')
                     ->html('<p>Pour réinitialiser votre mot de passe, veuillez cliquer sur ce lien : <a href="' . $resetUrl . '">' . $resetUrl . '</a></p>');
-
                 $mailer->send($email);
             }
 
