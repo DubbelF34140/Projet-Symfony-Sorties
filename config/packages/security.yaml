@@ -53,9 +53,10 @@ security:
     access_control:
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api/logout, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/lieux/.*, roles: PUBLIC_ACCESS }
-        - { path: ^/api/sorties, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/.*, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/login, roles: PUBLIC_ACCESS}
+        - { path: ^/reset_password, roles: PUBLIC_ACCESS }
+        - { path: ^/reset_password/.*, roles: PUBLIC_ACCESS}
         - { path: ^/logout, roles: PUBLIC_ACCESS}
         - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/admin/.*, roles: ROLE_ADMIN }
