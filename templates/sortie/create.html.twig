@@ -138,6 +138,7 @@
             const modal = new bootstrap.Modal(document.getElementById('addLieuModal'));
 
             villeSelect.addEventListener('change', function () {
+
                 const villeId = villeSelect.value;
                 document.getElementById('lieu_ville').value = villeId; // Mise à jour du champ ville dans le formulaire de lieu
 
@@ -148,8 +149,8 @@
                     fetch(`/api/lieux/${villeId}`, {
                         method: 'GET',
                         headers: {
-                            'Authorization': 'Bearer ' + {{ sessionId }},
-                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + '{{ sessionId }}',
+                            'Content-Type': 'application/json'
                         },
                         credentials: 'same-origin',
                     })
@@ -183,9 +184,11 @@
                 fetch('/api/lieux/add', {
                     method: 'POST',
                     headers: {
+                        'Authorization': 'Bearer ' + '{{ sessionId }}',
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
                     },
+                    credentials: 'same-origin',
                     body: JSON.stringify(formData)
                 })
                     .then(response => response.json())

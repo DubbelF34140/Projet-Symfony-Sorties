@@ -145,7 +145,14 @@
                 document.getElementById('lieu_ville').value = villeId;
 
                 // Récupérer et afficher les lieux correspondant à la ville présélectionnée
-                fetch(`/api/lieux/${villeId}`)
+                fetch(`/api/lieux/${villeId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + '{{ sessionId }}',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                })
                     .then(response => response.json())
                     .then(data => {
                         lieuSelect.innerHTML = '<option value="">Sélectionnez un lieu</option>';
@@ -172,7 +179,14 @@
                     lieuSelect.disabled = false;
 
                     // Charger les lieux via Ajax pour la ville sélectionnée
-                    fetch(`/api/lieux/${villeId}`)
+                    fetch(`/api/lieux/${villeId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + '{{ sessionId }}',
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    })
                         .then(response => response.json())
                         .then(data => {
                             lieuSelect.innerHTML = '<option value="">Sélectionnez un lieu</option>';
