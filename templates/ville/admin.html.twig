@@ -9,74 +9,66 @@
 {% endblock %}
 
 {% block body %}
-
-    <h1>Gestion des villes</h1>
-    <h2>Filtrer les villes</h2>
-
-    <form method="get" action="{{ path('app_ville') }}" class="form-container">
-        <!-- Div gauche : Campus, Nom de la sortie, Dates -->
-        <div class="form-left">
-            <div class="form-group">
-                <label for="nom" class="form-label">Le nom de la ville contient</label>
-                <div class="input-group">
-                    <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}" class="form-control" placeholder="search">
-                </div>
+    <div class="container mt-5">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Gestion des Villes</h2>
+            </div>
+            <div class="card-body">
+                <table class="table table-hover table-bordered">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Nom de la Ville</th>
+                        <th>Code Postal</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for ville in villes %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-info text-dark">{{ ville.nom }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-info text-dark">{{ ville.codePostal }}</span>
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ path('ville_edit', {id: ville.id}) }}" class="btn btn-sm btn-warning me-2">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <form method="post" action="{{ path('ville_delete', {id: ville.id}) }}" style="display:inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce ville ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ville.id) }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash-alt"></i> Supprimer
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
+                        <td>
+                            {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom de la ville'}}) }}
+                            <div class="text-danger">
+                                {{ form_errors(form.nom) }}
+                            </div>
+                        </td>
+                        <td>
+                            {{ form_widget(form.codePostal, {'attr': {'class': 'form-control', 'placeholder': 'Code Postal de la ville'}}) }}
+                            <div class="text-danger">
+                                {{ form_errors(form.nom) }}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <button type="submit" class="btn btn-sm btn-success">
+                                <i class="fas fa-plus"></i> Ajouter
+                            </button>
+                        </td>
+                        {{ form_end(form) }}
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <!-- Div droite : Bouton de recherche -->
-        <div class="form-right">
-            <button type="submit" class="btn btn-outline-dark">Rechercher</button>
-        </div>
-    </form>
-
-    <h2 class="mt-4">Liste des villes</h2>
-
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Ville</th>
-            <th>Code Postal</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for ville in villes %}
-            <tr>
-                <td>{{ ville.nom }}</td>
-                <td>{{ ville.codePostal }}</td>
-                <td>
-                    <a href="{{ path('ville_edit', {id: ville.id}) }}" class="btn btn-warning">Modifier</a>
-
-                    <!-- Formulaire de suppression -->
-                    <form method="post" action="{{ path('ville_delete', {id: ville.id}) }}" style="display:inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ville ?');">
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ville.id) }}">
-                        <button class="btn btn-danger">Supprimer</button>
-                    </form>
-                </td>
-
-            </tr>
-        {% endfor %}
-        <tr>
-            <!-- Formulaire d'ajout d'une nouvelle ville -->
-            {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
-            <td>
-                {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom de la ville'}}) }}
-                <div class="text-danger">
-                    {{ form_errors(form.nom) }}
-                </div>
-            </td>
-            <td>
-                {{ form_widget(form.codePostal, {'attr': {'class': 'form-control', 'placeholder': 'Code postal'}}) }}
-                <div class="text-danger">
-                    {{ form_errors(form.codePostal) }}
-                </div>
-            </td>
-            <td>
-                <button type="submit" class="btn btn-primary">Ajouter</button>
-            </td>
-            {{ form_end(form) }}
-        </tr>
-        </tbody>
-    </table>
+    </div>
 {% endblock %}

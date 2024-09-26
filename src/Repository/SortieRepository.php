@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Participant;
 use App\Entity\Sortie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -119,5 +120,25 @@ class SortieRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+
+
+    public function getSortiesInscrit(Participant $participant)
+    {
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.inscrits', 'p')
+            ->where('p.id = :participantId')
+            ->setParameter('participantId', $participant->getId())
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function getSortiesOrganisees(Participant $participant)
+    {
+        return $this->createQueryBuilder('s')
+            ->where('s.organisateur = :participant')
+            ->setParameter('participant', $participant)
+            ->getQuery()
+            ->getResult();
     }
 }
