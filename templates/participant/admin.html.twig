@@ -42,8 +42,18 @@
     </table>
 
     <div class="mb-3">
-        <a href="{{ path('app_participant_register') }}" class="btn btn-success">Ajouter un participant</a>
-        <a href="{{ path('app_participant_register_csv') }}" class="btn btn-success">Importer à partir d'un CSV</a>
+            <a href="{{ path('app_participant_register') }}" class="btn btn-success">Ajouter un participant</a>
+    </div>
+
+    <div class="mb-3">
+        {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
+        <div class="form-group mb-3">
+{#            {{ form_label(form.fichier) }}#}
+            {{ form_widget(form.fichier, {'attr': {'class': 'form-control', 'accept': 'image/*', 'onchange': 'previewImage(event)'}}) }}
+            {{ form_errors(form.fichier) }}
+        </div>
+        <button type="submit" class="btn btn-success">Importer depuis un fichier CSV</button>
+        {{ form_end(form) }}
     </div>
 
 {% endblock %}
