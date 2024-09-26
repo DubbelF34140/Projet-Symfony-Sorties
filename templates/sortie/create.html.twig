@@ -142,7 +142,16 @@
 
                 if (villeId) {
                     lieuSelect.disabled = false;
-                    fetch(`/api/lieux/${villeId}`)
+
+                    // Charger les lieux via Ajax
+                    fetch(`/api/lieux/${villeId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + {{ sessionId }},
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    })
                         .then(response => response.json())
                         .then(data => {
                             lieuSelect.innerHTML = '<option value="">Sélectionnez un lieu</option>';

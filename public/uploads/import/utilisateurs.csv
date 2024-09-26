@@ -1,0 +1,5 @@
+nom;prenom;pseudo;telephone;admin;actif;firstconnect;campus_id;email;roles;password
+AdminNom;AdminPrenom;AD1;0600000000;1;1;1;59;admin@sortir.com;ROLE_ADMIN;adminpassword
+User1Nom;User1Prenom;US1;0611111111;0;1;1;59;user1@sortir.com;;user1password
+User2Nom;User2Prenom;US2;0622222222;0;1;1;60;user2@sortir.com;';user2password
+User3Nom;User3Prenom;US3;0633333333;0;1;1;61;user3@sortir.com;;user3password

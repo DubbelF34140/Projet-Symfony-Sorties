@@ -9,6 +9,27 @@
 {% endblock %}
 
 {% block body %}
+
+    <h1>Gestion des villes</h1>
+    <h2>Filtrer les villes</h2>
+
+    <form method="get" action="{{ path('app_ville') }}" class="form-container">
+        <!-- Div gauche : Campus, Nom de la sortie, Dates -->
+        <div class="form-left">
+            <div class="form-group">
+                <label for="nom" class="form-label">Le nom de la ville contient</label>
+                <div class="input-group">
+                    <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}" class="form-control" placeholder="search">
+                </div>
+            </div>
+        </div>
+
+        <!-- Div droite : Bouton de recherche -->
+        <div class="form-right">
+            <button type="submit" class="btn btn-outline-dark">Rechercher</button>
+        </div>
+    </form>
+
     <h2 class="mt-4">Liste des villes</h2>
 
     <table class="table table-striped">
