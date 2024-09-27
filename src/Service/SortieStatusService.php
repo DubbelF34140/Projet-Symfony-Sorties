@@ -26,9 +26,10 @@ class SortieStatusService
             $inscriptionDeadline = $sortie->getDateLimiteInscription();
             $maxParticipants = $sortie->getNbInscriptionMax();
             $participants = $sortie->getInscrits()->count();
+            $dateHeureDebut = $sortie->getDateHeureDebut();
 
             // Vérification pour l'état "Clôturée"
-            $etatCloturee = $etatRepository->find($etatRepository->findEtatFinish());
+            $etatCloturee = $etatRepository->find($etatRepository->findEtatFinish()); // Assure-toi que l'ID de l'état "Clôturée" est correct
             if ($etatCloturee === null) {
                 $logger->error('État "Clôturée" non trouvé dans la base de données.');
                 throw new \Exception('État "Clôturée" non trouvé.');
@@ -41,14 +42,13 @@ class SortieStatusService
             }
 
             // Vérification pour l'état "Historisé"
-            $etatHistorise = $etatRepository->find($etatRepository->findEtatFinish());
+            $etatHistorise = $etatRepository->find($etatRepository->findEtatHistorise()); // Assure-toi que l'ID de l'état "Historisé" est correct
             if ($etatHistorise === null) {
                 $logger->error('État "Historisé" non trouvé dans la base de données.');
                 throw new \Exception('État "Historisé" non trouvé.');
             }
 
             // Historiser la sortie si elle a été réalisée depuis plus d'un mois
-            $dateHeureDebut = $sortie->getDateHeureDebut();
             if ($now->diff($dateHeureDebut)->m >= 1 && $now > $dateHeureDebut) {
                 $sortie->setEtat($etatHistorise);
                 $this->entityManager->persist($sortie);
