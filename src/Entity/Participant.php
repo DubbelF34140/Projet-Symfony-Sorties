@@ -65,6 +65,9 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $firstconnection = true;
 
+    #[ORM\Column]
+    private ?string $sessionId;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -246,6 +249,18 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setFirstconnection(bool $firstconnection): static
     {
         $this->firstconnection = $firstconnection;
+
+        return $this;
+    }
+
+    public function getSessionId(): ?string
+    {
+        return $this->sessionId;
+    }
+
+    public function setSessionId(string $sessionId): static
+    {
+        $this->sessionId = $sessionId;
 
         return $this;
     }

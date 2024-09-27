@@ -39,7 +39,7 @@ class AppAuthenticator extends AbstractLoginFormAuthenticator
             new PasswordCredentials($password),
             [
                 new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
-                new RememberMeBadge($rememberMe ? 'remember' : null), // Passer l'état de "remember me"
+                new RememberMeBadge($rememberMe ? 'remember' : null),
             ]
         );
     }

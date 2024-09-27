@@ -23,7 +23,8 @@ class ParticipantUserProvider implements UserProviderInterface
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
         $user = $this->participantRepository->findOneBy(['email' => $identifier])
-            ?: $this->participantRepository->findOneBy(['pseudo' => $identifier]);
+            ?: $this->participantRepository->findOneBy(['pseudo' => $identifier])
+                ?: $this->participantRepository->findOneBy(['sessionId' => $identifier]);
 
         if (!$user) {
             throw new Exception(sprintf('Utilisateur avec identifiant "%s" non trouvé.', $identifier));
