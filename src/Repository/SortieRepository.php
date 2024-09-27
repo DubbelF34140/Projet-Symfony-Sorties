@@ -151,16 +151,24 @@ class SortieRepository extends ServiceEntityRepository
     public function findDetailSortie(int $id)
     {
         return $this->createQueryBuilder('s')
-            ->leftJoin('s.organisateur', 'o')
+            ->leftJoin('s.organisateur', 'o') // Fetch join pour l'organisateur
             ->addSelect('o')
-            ->leftJoin('s.campus', 'c')
+            ->leftJoin('s.campus', 'c') // Fetch join pour le campus
             ->addSelect('c')
-            ->leftJoin('s.inscrits', 'i')
+            ->leftJoin('s.inscrits', 'i') // Fetch join pour les inscrits
             ->addSelect('i')
+            ->leftJoin('s.lieu', 'l') // Fetch join pour le lieu
+            ->addSelect('l')
+            ->leftJoin('l.ville', 'v') // Fetch join pour la ville du lieu
+            ->addSelect('v')
+            ->leftJoin('s.etat', 'e') // Fetch join pour l'état
+            ->addSelect('e')
             ->where('s.id = :id')
             ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+
 
 }

@@ -174,6 +174,7 @@ class SortieController extends AbstractController
     }
 
 
+
     #[Route('sorties/{id<\d+>}/update', name: 'app_sorties_update', methods: ['GET', 'POST'])]
     public function update(Request $request,
                            SessionInterface $session,
