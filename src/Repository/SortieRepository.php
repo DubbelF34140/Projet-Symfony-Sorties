@@ -19,7 +19,13 @@ class SortieRepository extends ServiceEntityRepository
 
     public function searchSorties(EtatRepository $etatRepository, array $filters = [])
     {
-        $qb = $this->createQueryBuilder('s');
+        $qb = $this->createQueryBuilder('s')
+            ->leftJoin('s.organisateur', 'o')
+            ->addSelect('o')
+            ->leftJoin('s.campus', 'c')
+            ->addSelect('c')
+            ->leftJoin('s.inscrits', 'i')
+            ->addSelect('i');
 
         if (!empty($filters['campus'])) {
             $qb->andWhere('s.campus = :campus')
@@ -141,4 +147,20 @@ class SortieRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findDetailSortie(int $id)
+    {
+        return $this->createQueryBuilder('s')
+            ->leftJoin('s.organisateur', 'o')
+            ->addSelect('o')
+            ->leftJoin('s.campus', 'c')
+            ->addSelect('c')
+            ->leftJoin('s.inscrits', 'i')
+            ->addSelect('i')
+            ->where('s.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
 }

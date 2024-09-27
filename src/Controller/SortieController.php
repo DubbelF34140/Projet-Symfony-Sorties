@@ -35,8 +35,6 @@ class SortieController extends AbstractController
         // Récupérer l'utilisateur connecté
         $user = $this->getUser();
 
-        $service->checkSortieStatus($logger, $etatRepository);
-
         // Récupérer les filtres depuis la requête GET
         $filters = [
             'campus' => $request->query->get('campus'),
@@ -162,21 +160,19 @@ class SortieController extends AbstractController
     #[Route('/sorties/{id<\d+>}/detail', name: 'app_sorties_detail')]
     public function detail(int $id, SortieRepository $repo): Response
     {
+        $sortie = $repo->findDetailSortie($id);
 
-        $sortie = $repo->find($id);
-        $participants = $sortie->getInscrits();
-
-        if(!$repo){
-            throw $this->createNotFoundException('sortie not found');
+        if (!$sortie) {
+            throw $this->createNotFoundException('La sortie n\'existe pas.');
         }
 
         return $this->render('sortie/detail.html.twig', [
             'title' => 'Afficher une sortie',
             'sortie' => $sortie,
-            'participants' => $participants,
-
+            'participants' => $sortie->getInscrits(),
         ]);
     }
+
 
     #[Route('sorties/{id<\d+>}/update', name: 'app_sorties_update', methods: ['GET', 'POST'])]
     public function update(Request $request,
