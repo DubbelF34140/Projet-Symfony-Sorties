@@ -231,19 +231,18 @@
                         <td></td>
                     {% endif %}
                     <td>
-                        <a href="{{ path('app_sorties_detail', {id: sortie.id}) }}" class="btn btn-info btn-sm">
+                        <a href="{{ path('app_sorties_detail', {id: sortie.id}) }}" class="btn btn-info btn-sm" data-bs-toggle="tooltip" title="Voir les détails">
                             <i class="fas fa-eye"></i> <!-- Icône pour afficher (œil) -->
                         </a>
-
                         {% if sortie.organisateur %}
                             {% if app.user.pseudo == sortie.organisateur.pseudo and sortie.etat.libelle == "Ouverte" %}
-                                <a href="{{ path('app_sortie_annuler', {id: sortie.id}) }}" class="btn btn-warning btn-sm">
+                                <a href="{{ path('app_sortie_annuler', {id: sortie.id}) }}" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Annuler la sortie">
                                     <i class="fas fa-times"></i> <!-- Icône pour annuler (croix) -->
                                 </a>
                             {% endif %}
 
                             {% if app.user.administrateur and app.user.pseudo != sortie.organisateur.pseudo and sortie.etat.libelle == "Ouverte" %}
-                                <a href="{{ path('app_admin_sortie_annuler', {id: sortie.id}) }}" class="btn btn-danger btn-sm">
+                                <a href="{{ path('app_admin_sortie_annuler', {id: sortie.id}) }}" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" title="Annuler en tant qu'admin">
                                     <i class="fas fa-ban"></i> <!-- Icône pour annuler admin (interdiction) -->
                                 </a>
                             {% endif %}
@@ -251,21 +250,20 @@
 
                         {% if sortie.etat.libelle == 'Ouverte' %}
                             {% if app.user in sortie.inscrits %}
-                                <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">
+                                <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Se désister">
                                     <i class="fas fa-user-minus"></i> <!-- Icône pour se désister -->
                                 </a>
                             {% else %}
-                                <a href="{{ path('app_sorties_register', {id: sortie.id}) }}" class="btn btn-success btn-sm">
+                                <a href="{{ path('app_sorties_register', {id: sortie.id}) }}" class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="S'inscrire à la sortie">
                                     <i class="fas fa-user-plus"></i> <!-- Icône pour s'inscrire -->
                                 </a>
                             {% endif %}
                         {% elseif sortie.etat.libelle == 'En cours' %}
-                            <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm">
+                            <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Se désister (en cours)">
                                 <i class="fas fa-user-minus"></i> <!-- Icône pour se désister (en cours) -->
                             </a>
-
                         {% elseif sortie.etat.libelle == 'En création' and app.user.pseudo == sortie.organisateur.pseudo %}
-                            <a href="{{ path('app_sorties_update', {id: sortie.id}) }}" class="btn btn-warning btn-sm">
+                            <a href="{{ path('app_sorties_update', {id: sortie.id}) }}" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Modifier la sortie">
                                 <i class="fas fa-edit"></i> <!-- Icône pour modifier (crayon) -->
                             </a>
                         {% endif %}

@@ -23,6 +23,34 @@
     {% endfor %}
         {% block body %}{% endblock %}
     {% include 'partial/footer.html.twig' %}
+    <style>
+        .back-to-list-btn {
+            position: fixed;
+            top: 70px;
+            left: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #6c757d;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .back-to-list-btn:hover {
+            background-color: #5a6268;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-to-list-btn i {
+            margin: 0;
+        }
+    </style>
     </body>
 
 </html>

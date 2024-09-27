@@ -1,28 +1,35 @@
-{# templates/participant/modifier_profil.html.twig #}
-
 {% extends 'base.html.twig' %}
 
 {% block title %}Modifier le profil{% endblock %}
 
+{% block stylesheets %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-5" style="margin-bottom: 100px">
+    <button onclick="history.back()" class="btn btn-secondary back-to-list-btn">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <div class="container mt-5">
         <h1 class="text-center mb-4">Modifier votre profil</h1>
 
         {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
 
         <div class="row justify-content-center">
-            <div class="col-md-6 card" style="background-color: rgba(0, 0, 0, 0.2);">
-                <div class="text-center mb-3">
+            <div class="col-md-6 profile-card shadow-sm">
+                <div class="text-center mb-4">
                     {% if participant.photo %}
-                        <img id="profilePreview" src="{{ asset('uploads/photos/' ~ participant.photo) }}" alt="Photo de profil" class="img-fluid rounded-circle" style="max-width: 150px; margin: auto;">
+                        <img id="profilePreview" src="{{ asset('uploads/photos/' ~ participant.photo) }}" alt="Photo de profil" class="img-fluid rounded-circle">
                     {% else %}
-                        <img id="profilePreview" src="#" alt="Aucune photo de profil" class="img-fluid rounded-circle" style="max-width: 150px; display: none; margin: auto;">
+                        <img id="profilePreview" src="{{ asset('images/profilepicdefault.jpg') }}" alt="Aucune photo de profil" class="img-fluid rounded-circle">
                     {% endif %}
                 </div>
 
                 {% for field in ['pseudo', 'email', 'nom', 'prenom', 'telephone'] %}
                     <div class="form-group mb-3">
-                        {{ form_label(attribute(form, field), null, {'label_attr': {'class': 'form-label mr-2'}}) }}
+                        {{ form_label(attribute(form, field), null, {'label_attr': {'class': 'form-label'}}) }}
                         {{ form_widget(attribute(form, field), {'attr': {'class': 'form-control'}}) }}
                         {{ form_errors(attribute(form, field)) }}
                     </div>
@@ -54,9 +61,13 @@
                     </div>
                 {% endif %}
 
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ path('app_participant_change_password', {id: participant.id}) }}" class="btn btn-secondary">Modifier le mot de passe</a>
-                    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                <div class="d-flex justify-content-between mt-4" style="margin-bottom: 30px">
+                    <a href="{{ path('app_participant_change_password', {id: participant.id}) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-key"></i> Modifier le mot de passe
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Enregistrer les modifications
+                    </button>
                 </div>
             </div>
         </div>
@@ -64,7 +75,35 @@
         {{ form_end(form) }}
     </div>
 
-    {# Script JavaScript pour prévisualiser l'image #}
+    <style>
+        .profile-card {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .profile-card img {
+            max-width: 150px;
+            margin-bottom: 15px;
+            border: 5px solid #fff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-control {
+            background-color: #f7f7f7;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            box-shadow: 0 4px 6px rgba(0, 0, 123, 255, 0.1);
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+        }
+    </style>
+
     <script>
         function previewImage(event) {
             const file = event.target.files[0];
@@ -78,8 +117,8 @@
                 };
                 reader.readAsDataURL(file);
             } else {
-                preview.src = '#';
-                preview.style.display = 'none'; // Cache l'image si aucun fichier
+                preview.src = "{{ asset('images/profilepicdefault.jpg') }}"; // Rétablit l'image par défaut
+                preview.style.display = 'block'; // Toujours afficher l'image même si aucun fichier sélectionné
             }
         }
     </script>

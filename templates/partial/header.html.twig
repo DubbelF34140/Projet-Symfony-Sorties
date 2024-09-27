@@ -6,6 +6,8 @@
             {% else %}
                 <a class="navbar-brand" href="{{ path('app_sortie') }}">Sortie.com</a>
             {% endif %}
+        {% else %}
+            <a href="{{ path('app_sortie') }}" class="navbar-brand">Sortie.com</a>
         {% endif %}
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">

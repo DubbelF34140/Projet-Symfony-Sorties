@@ -198,19 +198,30 @@ class ParticipantController extends AbstractController
         SortieRepository $sortieRepository,
         EtatRepository $etatRepository,
         int $id,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        Request $request
     ): Response {
         $participant = $participantRepository->find($id);
 
         if (!$participant) {
+            // Si le participant n'existe pas, rediriger avec un message d'erreur
+            $this->addFlash('error', 'Le participant n\'existe pas.');
             return $this->redirectToRoute('app_participant_admin', [], Response::HTTP_NOT_FOUND);
         }
 
-        // Supprimer les associations du participant et le participant lui-même
-        $participantRepository->removeParticipantAndUpdateSorties($participant, $entityManager, $sortieRepository, $etatRepository);
+        try {
+            // Supprimer les associations du participant et le participant lui-même
+            $participantRepository->removeParticipantIfNoSorties($participant, $entityManager, $sortieRepository);
+            $this->addFlash('success', 'Le participant a été supprimé avec succès.');
+        } catch (\Exception $e) {
+            // Ajouter un message flash en cas d'erreur
+            $this->addFlash('danger', $e->getMessage());
+        }
 
+        // Rediriger vers la liste des participants
         return $this->redirectToRoute('app_participant_admin');
     }
+
 
 
     #[Route('admin/participant/register', name: 'app_participant_register')]

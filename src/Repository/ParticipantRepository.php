@@ -58,29 +58,21 @@ class ParticipantRepository extends ServiceEntityRepository implements PasswordU
     //            ->getOneOrNullResult()
     //        ;
     //    }
-    public function removeParticipantAndUpdateSorties(Participant $participant, EntityManagerInterface $entityManager, SortieRepository $sortieRepository, EtatRepository $etatRepository): void
+    public function removeParticipantIfNoSorties(Participant $participant, EntityManagerInterface $entityManager, SortieRepository $sortieRepository): void
     {
-        // Désinscrire le participant de toutes les sorties auxquelles il est inscrit
+        // Vérifier si le participant est inscrit à des sorties
         $sortiesInscrit = $sortieRepository->getSortiesInscrit($participant);
-        foreach ($sortiesInscrit as $sortie) {
-            $sortie->removeInscrit($participant);
-            $entityManager->persist($sortie);
+
+        // Si le participant est inscrit à des sorties, empêcher la suppression
+        if (!empty($sortiesInscrit)) {
+            throw new \Exception("Le participant est inscrit à des sorties et ne peut pas être supprimé.");
         }
 
-        // Annuler toutes les sorties dont le participant est l'organisateur
-        $sortiesOrganisees = $sortieRepository->getSortiesOrganisees($participant);
-        foreach ($sortiesOrganisees as $sortie) {
-            // Passer à l'état "Annulé"
-            $etatAnnule = $etatRepository->findEtatAnnulee();
-            $sortie->setEtat($etatAnnule);
-            $sortie->setInfosuppr('Annulé car l\'organisateur a été supprimé.');
-            $entityManager->persist($sortie);
-        }
-
-        // Après avoir annulé ou mis à jour les sorties, supprimer le participant
+        // Si le participant n'est pas inscrit, procéder à la suppression
         $entityManager->remove($participant);
         $entityManager->flush();
     }
+
 
 
 }
