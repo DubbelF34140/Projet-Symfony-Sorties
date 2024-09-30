@@ -17,7 +17,7 @@ class SortieRepository extends ServiceEntityRepository
         parent::__construct($registry, Sortie::class);
     }
 
-    public function searchSorties(EtatRepository $etatRepository, array $filters = [])
+    public function searchSorties(Participant $user, EtatRepository $etatRepository, array $filters = [])
     {
         $qb = $this->createQueryBuilder('s')
             ->leftJoin('s.organisateur', 'o')
@@ -68,6 +68,15 @@ class SortieRepository extends ServiceEntityRepository
             if ($cloture) {
                 $qb->andWhere('s.etat = :terminee')
                     ->setParameter('terminee', $cloture);
+            }
+        }
+
+        if (!$user->isAdministrateur()) {
+            $enCreation = $etatRepository->findEtatCreation();
+            if ($enCreation) {
+                $qb->andWhere('s.etat != :enCreation OR s.organisateur = :user')
+                    ->setParameter('enCreation', $enCreation)
+                    ->setParameter('user', $user);
             }
         }
 

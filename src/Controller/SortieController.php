@@ -51,7 +51,7 @@ class SortieController extends AbstractController
         $campuss = $campusRepository->findAll();
 
         // Recherche des sorties avec les filtres appliqués
-        $query = $sortieRepository->searchSorties($etatRepository, $filters);
+        $query = $sortieRepository->searchSorties($user, $etatRepository, $filters);
 
         dump($query);
 
@@ -213,7 +213,7 @@ class SortieController extends AbstractController
         ]);
     }
 
-    #[Route('/delete/{id<\d+>}', name: 'app_sorties_delete', methods: ['POST'])]
+    #[Route('/delete/{id<\d+>}', name: 'app_sorties_delete', methods: ['GET'])]
     public function delete(int $id, SortieRepository $repo, EntityManagerInterface $em): Response
     {
         $sortie = $repo->find($id);

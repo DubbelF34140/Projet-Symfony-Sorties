@@ -65,7 +65,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $firstconnection = true;
 
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?string $sessionId;
 
     public function getId(): ?int
