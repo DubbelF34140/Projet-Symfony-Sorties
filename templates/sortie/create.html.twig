@@ -62,7 +62,11 @@
                     <select id="ville" class="form-select">
                         <option value="">Sélectionnez une ville</option>
                         {% for ville in villes %}
-                            <option value="{{ ville.id }}">{{ ville.nom }}</option>
+                            {% if ville.id == sortie.lieu.ville.id %}
+                                <option value="{{ ville.id }}" selected>{{ ville.nom }}</option>
+                            {% else %}
+                                <option value="{{ ville.id }}" >{{ ville.nom }}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -70,7 +74,7 @@
                 <div class="form-group mb-3">
                     {{ form_label(form.lieu, 'Lieu', {'label_attr': {'class': 'form-label'}}) }}
                     <div class="input-group">
-                        {{ form_widget(form.lieu, {'attr': {'class': 'form-control', 'disabled': true}}) }}
+                        {{ form_widget(form.lieu, {'attr': {'class': 'form-control'}}) }}
                         <button type="button" class="btn btn-outline-secondary" id="addLieuButton" data-bs-toggle="modal" data-bs-target="#addLieuModal">
                             <i class="bi bi-plus-lg"></i> Ajouter un lieu
                         </button>
@@ -133,28 +137,56 @@
     {{ parent() }}
     <!-- Bootstrap JS (pour le bon fonctionnement des modals) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const villeSelect = document.querySelector('#ville');
             const lieuSelect = document.querySelector('#{{ form.lieu.vars.id }}'); // Sélecteur basé sur l'ID du widget lieu
-            const addLieuForm = document.querySelector('#addLieuForm');
-            const modal = new bootstrap.Modal(document.getElementById('addLieuModal'));
+            const sortie = {{ sortie ? sortie|json_encode : 'null' }}; // S'assure que sortie existe
 
+            // Si une sortie existe et qu'elle a un lieu, pré-sélectionne la ville et le lieu
+            if (sortie && sortie.lieu) {
+                const villeId = sortie.lieu.ville.id;
+
+                // Pré-sélectionner la ville au chargement
+                villeSelect.value = villeId;
+                document.getElementById('lieu_ville').value = villeId;
+
+                // Charger les lieux correspondant à la ville présélectionnée
+                fetch(`/api/lieux/${villeId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + '{{ sessionId }}',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        lieuSelect.innerHTML = '<option value="">Sélectionnez un lieu</option>';
+                        data.forEach(lieu => {
+                            const option = document.createElement('option');
+                            option.value = lieu.id;
+                            option.textContent = lieu.nom;
+                            lieuSelect.appendChild(option);
+                        });
+                        // Pré-sélectionner le lieu si un lieu est déjà associé à la sortie
+                        const lieuId = sortie.lieu.id;
+                        lieuSelect.value = lieuId; // Pré-sélectionner le lieu
+                    });
+            }
+
+            // Gestion du changement de ville
             villeSelect.addEventListener('change', function () {
-
                 const villeId = villeSelect.value;
-                document.getElementById('lieu_ville').value = villeId; // Mise à jour du champ ville dans le formulaire de lieu
+                document.getElementById('lieu_ville').value = villeId;
 
                 if (villeId) {
-                    lieuSelect.disabled = false;
-
-                    // Charger les lieux via Ajax
+                    // Charger les lieux via Ajax pour la ville sélectionnée
                     fetch(`/api/lieux/${villeId}`, {
                         method: 'GET',
                         headers: {
                             'Authorization': 'Bearer ' + '{{ sessionId }}',
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
                         },
                         credentials: 'same-origin',
                     })
@@ -169,46 +201,9 @@
                             });
                         });
                 } else {
-                    lieuSelect.disabled = true;
                     lieuSelect.innerHTML = '<option value="">Sélectionnez une ville d\'abord</option>';
                 }
             });
-
-            addLieuForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-
-                const formData = {
-                    nom: document.getElementById('lieu_nom').value,
-                    rue: document.getElementById('lieu_rue').value,
-                    latitude: document.getElementById('lieu_latitude').value,
-                    longitude: document.getElementById('lieu_longitude').value,
-                    ville: document.getElementById('lieu_ville').value
-                };
-
-                fetch('/api/lieux/add', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + '{{ sessionId }}',
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                    credentials: 'same-origin',
-                    body: JSON.stringify(formData)
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Ajouter le nouveau lieu à la liste des lieux
-                        const option = document.createElement('option');
-                        option.value = data.id;
-                        option.textContent = data.nom;
-                        lieuSelect.appendChild(option);
-                        lieuSelect.value = data.id;
-
-                        // Fermer la modal
-                        modal.hide();
-                    })
-                    .catch(error => console.error('Erreur:', error));
-            });
         });
-    </script>
+     </script>
 {% endblock %}

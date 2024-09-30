@@ -7,6 +7,7 @@ use App\Form\AnnulationType;
 use App\Form\SortieType;
 use App\Repository\CampusRepository;
 use App\Repository\EtatRepository;
+use App\Repository\LieuRepository;
 use App\Repository\SortieRepository;
 use App\Repository\VilleRepository;
 use App\Service\SortieStatusService;
@@ -78,9 +79,10 @@ class SortieController extends AbstractController
     }
 
     #[Route('/sorties/create', name: 'app_sorties_create')]
-    public function create(Request $request, SessionInterface $session, EntityManagerInterface $entityManager, EtatRepository $etatRepository, VilleRepository $villeRepository): Response
+    public function create(Request $request, SessionInterface $session, EntityManagerInterface $entityManager, EtatRepository $etatRepository, VilleRepository $villeRepository, LieuRepository $lieuRepository): Response
     {
         $villes = $villeRepository->findAll();
+        $lieus = $lieuRepository->findAll();
 
         $sortie = new Sortie();
         $form = $this->createForm(SortieType::class, $sortie);
@@ -101,12 +103,18 @@ class SortieController extends AbstractController
             $entityManager->flush();
 
             return $this->redirectToRoute('app_sortie');
+        }if (!$form->isSubmitted()) {
+        // Initialisation du lieu par défaut à la création si aucune sélection n'a encore été faite
+        if ($lieus) {
+            $sortie->setLieu($lieus[0]);
         }
+    }
 
         return $this->render('sortie/create.html.twig', [
             'form' => $form->createView(),
             'villes' => $villes,
-            'sessionId' => $session->getId()
+            'sessionId' => $session->getId(),
+            'sortie' => $sortie
         ]);
     }
 
