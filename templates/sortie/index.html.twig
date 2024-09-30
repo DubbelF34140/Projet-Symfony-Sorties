@@ -277,8 +277,10 @@
             </tbody>
         </table>
 
-        <div class="d-flex justify-content-center">
-            {{ knp_pagination_render(sorties) }}
+        <div class="d-flex justify-content-center my-4">
+            <nav aria-label="Pagination des sorties" class="shadow-sm rounded">
+                {{ knp_pagination_render(sorties, 'pagination/bootstrap_v5_pagination.html.twig') }}
+            </nav>
         </div>
 
         <a href="{{ path('app_sorties_create') }}" class="btn btn-primary">Créer une Sortie</a>
