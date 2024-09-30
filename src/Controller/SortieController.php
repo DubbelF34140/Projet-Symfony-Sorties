@@ -90,21 +90,23 @@ class SortieController extends AbstractController
 
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $present = $form->get('present')->getData();
             if ($request->request->has('save')) {
                 $sortie->setEtat($etatRepository->findEtatCreation());
             } elseif ($request->request->has('publish')) {
                 $sortie->setEtat($etatRepository->findEtatPubliee());
             }
-
             $sortie->setOrganisateur($this->getUser());
             $sortie->setCampus($this->getUser()->getCampus());
+            if ($present) {
+                $sortie->addInscrit($this->getUser());
+            }
             dump($sortie);
             $entityManager->persist($sortie);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_sortie');
         }if (!$form->isSubmitted()) {
-        // Initialisation du lieu par défaut à la création si aucune sélection n'a encore été faite
         if ($lieus) {
             $sortie->setLieu($lieus[0]);
         }

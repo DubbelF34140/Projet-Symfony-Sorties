@@ -80,6 +80,13 @@
                         </button>
                     </div>
                 </div>
+
+                <div class="form-group form-check mb-3">
+                    {{ form_widget(form.present, {'attr': {'class': 'form-check-input', 'id': 'presentCheckbox'}}) }}
+                    {{ form_label(form.present, 'Je serai présent', {'label_attr': {'class': 'form-check-label', 'for': 'presentCheckbox'}}) }}
+                    <div class="text-danger">{{ form_errors(form.present) }}</div>
+                </div>
+
             </div>
         </div>
 
