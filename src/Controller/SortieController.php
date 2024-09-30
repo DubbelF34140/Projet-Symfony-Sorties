@@ -52,6 +52,7 @@ class SortieController extends AbstractController
 
         // Recherche des sorties avec les filtres appliqués
         $query = $sortieRepository->searchSorties($user, $etatRepository, $filters);
+        $page = $request->query->getInt('page', 1);
 
         dump($query);
 
@@ -68,6 +69,11 @@ class SortieController extends AbstractController
             'sorties' => $sorties,
             'campuss' => $campuss,
             'campus' => $campus,
+            'currentPage' => $page,
+            'totalPages' => ceil($sorties->getTotalItemCount() / 10),
+            'previousPage' => $page > 1 ? $page - 1 : null,
+            'nextPage' => $page < ceil($sorties->getTotalItemCount() / 10) ? $page + 1 : null,
+
         ]);
     }
 
