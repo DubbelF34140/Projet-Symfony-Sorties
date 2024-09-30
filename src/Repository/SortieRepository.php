@@ -85,6 +85,8 @@ class SortieRepository extends ServiceEntityRepository
         $qb->andWhere('s.etat != :historique')
             ->setParameter('historique', $historique);
 
+        $qb->orderBy('s.dateHeureDebut', 'ASC');
+
         return $qb->getQuery()->getResult();
     }
 
