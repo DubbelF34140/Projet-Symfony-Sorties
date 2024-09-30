@@ -48,15 +48,20 @@ class ParticipantController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $file = $form->get('photo')->getData();
             if ($file) {
-                // Gérer le stockage du fichier
-                $filename = uniqid() . '.' . $file->guessExtension(); // Générer un nom de fichier unique
-                $file->move($this->getParameter('photos_directory'), $filename); // Déplacez le fichier
+                if ($participant->getPhoto()) {
+                    $oldPhotoPath = $this->getParameter('photos_directory') . '/' . $participant->getPhoto();
 
-                // Mettre à jour l'entité avec le nom du fichier
+                    if (file_exists($oldPhotoPath)) {
+                        unlink($oldPhotoPath);
+                    }
+                }
+
+                $filename = uniqid() . '.' . $file->guessExtension();
+                $file->move($this->getParameter('photos_directory'), $filename);
+
                 $participant->setPhoto($filename);
             }
 
-            // Sauvegarder les modifications
             $entityManager->persist($participant);
             $entityManager->flush();
 
@@ -72,7 +77,7 @@ class ParticipantController extends AbstractController
     #[Route('/participant/{id}/change-password', name: 'app_participant_change_password')]
     public function changePassword(Request $request, Participant $participant, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(ChangePasswordType::class); // Assurez-vous de créer un formulaire ChangePasswordType.php
+        $form = $this->createForm(ChangePasswordType::class);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -97,7 +102,6 @@ class ParticipantController extends AbstractController
     #[Route('/participant/{id}/view', name: 'app_participant_view')]
     public function view(Participant $participant): Response
     {
-        // Ici tu récupères déjà l'utilisateur à afficher via le param converter
         return $this->render('participant/view.html.twig', [
             'participant' => $participant,
         ]);
