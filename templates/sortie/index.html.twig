@@ -136,7 +136,7 @@
             <!-- Div gauche : Campus, Nom de la sortie, Dates -->
             <div class="form-left">
                 <div class="form-group">
-                    <label for="campus" class="form-label">Campus</label>
+                    <label for="campus" class="form-label mr-3">Campus</label>
                     <select name="campus" id="campus" class="form-select">
                         <option value="">Tous</option>
                         {% for campus in campuss %}
@@ -150,15 +150,16 @@
                 <div class="form-group">
                     <label for="nom" class="form-label">Le nom de la sortie contient</label>
                     <div class="input-group">
-                        <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}" class="form-control" placeholder="search">
+                        <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}" class="form-control" placeholder="Rechercher...">
                     </div>
                 </div>
 
                 <div class="dates-group">
                     <div class="form-group">
-                        <label for="dateDebut" class="form-label">Entre</label>
+                        <label for="dateDebut" class="form-label mr-2">Entre</label>
                         <input type="date" name="dateDebut" id="dateDebut" value="{{ app.request.get('dateDebut') }}" class="form-control">
-                        <label for="dateFin" class="form-label">et</label>
+
+                        <label for="dateFin" class="form-label mx-2">et</label>
                         <input type="date" name="dateFin" id="dateFin" value="{{ app.request.get('dateFin') }}" class="form-control">
                     </div>
                 </div>

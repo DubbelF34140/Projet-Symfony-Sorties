@@ -91,7 +91,7 @@ class ParticipantController extends AbstractController
             $entityManager->persist($participant);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_participant_edit', ['id' => $participant->getId()]);
+            return $this->redirectToRoute('app_sortie');
         }
 
         return $this->render('participant/change_password.html.twig', [
