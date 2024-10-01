@@ -44,7 +44,6 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
-    #[Assert\NotBlank(message: 'Le mot de passe ne doit pas être vide')]
     #[ORM\Column]
     private ?string $password = null;
 
