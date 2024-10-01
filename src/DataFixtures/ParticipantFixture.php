@@ -26,7 +26,6 @@ class ParticipantFixture extends Fixture implements OrderedFixtureInterface
         $paris = $manager->getRepository(Campus::class)->findOneBy(['nom' => 'Campus Paris']);
         $lyon = $manager->getRepository(Campus::class)->findOneBy(['nom' => 'Campus Lyon']);
 
-        // Création de l'administrateur
         $admin = new Participant();
         $admin->setPseudo('AD1')
             ->setEmail('admin@sortir.com')
@@ -41,7 +40,6 @@ class ParticipantFixture extends Fixture implements OrderedFixtureInterface
         $admin->setRoles(['ROLE_ADMIN']);
         $manager->persist($admin);
 
-        // Création du premier utilisateur
         $user1 = new Participant();
         $user1->setPseudo('US1')
             ->setEmail('user1@sortir.com')
@@ -55,7 +53,6 @@ class ParticipantFixture extends Fixture implements OrderedFixtureInterface
             ->setFirstconnection(false);
         $manager->persist($user1);
 
-        // Création du second utilisateur
         $user2 = new Participant();
         $user2->setPseudo('US2')
             ->setEmail('user2@sortir.com')
@@ -69,7 +66,6 @@ class ParticipantFixture extends Fixture implements OrderedFixtureInterface
             ->setFirstconnection(true);
         $manager->persist($user2);
 
-        // Sauvegarde des utilisateurs dans la base
         $manager->flush();
     }
 

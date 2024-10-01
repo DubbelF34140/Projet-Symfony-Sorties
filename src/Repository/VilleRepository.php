@@ -24,7 +24,6 @@ class VilleRepository extends ServiceEntityRepository
             $qb->andWhere('s.nom LIKE :nom')
                 ->setParameter('nom', '%' . $filter['nom'] . '%');
         }
-        dump($qb->getQuery()->getResult());
         return $qb->getQuery()->getResult();
     }
 

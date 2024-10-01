@@ -26,10 +26,8 @@ class SecurityController extends AbstractController
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-        // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
 
-        // last username entered by the user
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', [
@@ -86,14 +84,11 @@ class SecurityController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $email = $form->get('email')->getData();
 
-            // Vérifiez si l'utilisateur existe
             $user = $participantRepository->findOneBy(['email' => $email]);
 
             if ($user) {
-                // Générer un token de réinitialisation
                 $token = bin2hex(random_bytes(32));
 
-                // Sauvegarder le token et son expiration en base de données ou en session (à implémenter)
                 $resetToken = new ResetToken();
                 $resetToken->setUserId($user->getId());
                 $resetToken->setToken($token);
@@ -101,14 +96,12 @@ class SecurityController extends AbstractController
                 $entityManager->persist($resetToken);
                 $entityManager->flush();
 
-                // Créer le lien de réinitialisation
                 $resetUrl = $urlGenerator->generate(
                     'app_reset_password',
                     ['token' => $token],
                     UrlGeneratorInterface::ABSOLUTE_URL
                 );
 
-                // Envoyer l'e-mail
                 $email = (new Email())
                     ->from('alexis.draud2023@campus-eni.fr')
                     ->to($user->getEmail())

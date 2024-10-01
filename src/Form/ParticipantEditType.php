@@ -50,7 +50,7 @@ class ParticipantEditType extends AbstractType
                     ->add('campus', EntityType::class, [
                         'class' => Campus::class,
                         'label' => 'Campus',
-                        'choice_label' => 'nom', // Assurez-vous que 'nom' est une propriété de l'entité Campus
+                        'choice_label' => 'nom',
                         'required' => true,
                     ])
                     ->add('actif', CheckboxType::class, [

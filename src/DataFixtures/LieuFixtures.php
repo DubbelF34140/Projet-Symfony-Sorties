@@ -12,7 +12,6 @@ class LieuFixtures extends Fixture implements OrderedFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        // Assurez-vous que les villes existent en base
         $paris = $manager->getRepository(Ville::class)->findOneBy(['nom' => 'Paris']);
         $lyon = $manager->getRepository(Ville::class)->findOneBy(['nom' => 'Lyon']);
         $marseille = $manager->getRepository(Ville::class)->findOneBy(['nom' => 'Marseille']);
@@ -21,7 +20,6 @@ class LieuFixtures extends Fixture implements OrderedFixtureInterface
             throw new \Exception('Les villes doivent exister avant de créer les lieux');
         }
 
-        // Liste des lieux (sans code postal, car il est dans Ville)
         $lieux = [
             ['nom' => 'Parc de la Tête d\'Or', 'rue' => 'Boulevard des Belges', 'latitude' => 45.7831, 'longitude' => 4.8657, 'ville' => $lyon],
             ['nom' => 'Place Bellecour', 'rue' => 'Place Bellecour', 'latitude' => 45.7578, 'longitude' => 4.8328, 'ville' => $lyon],

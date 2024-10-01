@@ -33,10 +33,8 @@ class SortieController extends AbstractController
         LoggerInterface $logger,
         PaginatorInterface $paginator
     ): Response {
-        // Récupérer l'utilisateur connecté
         $user = $this->getUser();
 
-        // Récupérer les filtres depuis la requête GET
         $filters = [
             'campus' => $request->query->get('campus'),
             'nom' => $request->query->get('nom'),
@@ -51,20 +49,14 @@ class SortieController extends AbstractController
         $campus = $request->query->get('campus', null);
         $campuss = $campusRepository->findAll();
 
-        // Recherche des sorties avec les filtres appliqués
         $query = $sortieRepository->searchSorties($user, $etatRepository, $filters);
         $page = $request->query->getInt('page', 1);
 
-        dump($query);
-
-        // Pagination des résultats
         $sorties = $paginator->paginate(
             $query,
             $request->query->getInt('page', 1),
             10
         );
-
-        dump($sorties);
 
         return $this->render('sortie/index.html.twig', [
             'sorties' => $sorties,
@@ -101,7 +93,6 @@ class SortieController extends AbstractController
             if ($present) {
                 $sortie->addInscrit($this->getUser());
             }
-            dump($sortie);
             $entityManager->persist($sortie);
             $entityManager->flush();
 
@@ -198,14 +189,11 @@ class SortieController extends AbstractController
                            sortieRepository $sortieRepo ,
                            etatRepository $etatRepository,
                            villeRepository $villeRepository,
-                           EntityManagerInterface $em//,
-                           //SluggerInterface $slugger,
-                           //#[Autowire('%kernel.project_dir%/public/uploads/wish')] string $wishesDirectory
+                           EntityManagerInterface $em,
     ): Response
     {
         $sortieForm = $this->createForm(SortieType::class, $sortie);
         $villes = $villeRepository->findAll();
-        //Submit and Validate
         $sortieForm->handleRequest($request);
         if ($sortieForm->isSubmitted() && $sortieForm->isValid()) {
             if ($request->request->has('delete')) {
@@ -213,9 +201,7 @@ class SortieController extends AbstractController
             } elseif ($request->request->has('publish')) {
                 $sortie->setEtat($etatRepository->findEtatPubliee());
             }
-            // Persist
             $em->flush();
-            //Add Succes notif
             $this->addFlash('success', 'La sortie a été modifiée avec succès');
             return $this->redirectToRoute('app_sorties_detail', ['id' => $sortie->getId()]);
         }
@@ -250,7 +236,6 @@ class SortieController extends AbstractController
         EntityManagerInterface $entityManager,
         EtatRepository $etatRepository
     ): Response {
-        // Vérification si l'utilisateur est l'organisateur de la sortie
         $this->denyAccessUnlessGranted('ROLE_USER');
         $user = $this->getUser();
 
@@ -259,31 +244,26 @@ class SortieController extends AbstractController
             return $this->redirectToRoute('app_sortie');
         }
 
-        // Vérification si la sortie est déjà commencée
         $now = new \DateTime();
         if ($sortie->getDateHeureDebut() <= $now) {
             $this->addFlash('error', 'Vous ne pouvez pas annuler une sortie qui a déjà commencé.');
             return $this->redirectToRoute('app_sortie');
         }
 
-        // Vérification si la sortie est publiée
         $etatPublie = $etatRepository->findEtatPubliee();
         if ($sortie->getEtat() !== $etatPublie) {
             $this->addFlash('error', 'Seules les sorties publiées peuvent être annulées.');
             return $this->redirectToRoute('app_sortie');
         }
 
-        // Formulaire pour motif d'annulation
         $form = $this->createForm(AnnulationType::class, $sortie);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Changer l'état à "Annulée"
             $etatAnnule = $etatRepository->findEtatAnnulee();
             $sortie->setEtat($etatAnnule);
             $sortie->setInfosuppr($form->get('infosuppr')->getData());
 
-            // Sauvegarder le motif d'annulation
             $entityManager->persist($sortie);
             $entityManager->flush();
 
@@ -304,7 +284,6 @@ class SortieController extends AbstractController
     #[Route('/api/sorties', name: 'api_sorties', methods: ['POST'])]
     public function list(SortieRepository $sortieRepository, Request $request, EtatRepository $etatRepository): JsonResponse
     {
-        // Récupérer les données JSON envoyées dans la requête
         $data = json_decode($request->getContent(), true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
@@ -324,10 +303,8 @@ class SortieController extends AbstractController
             $dateTime = null;
         }
 
-        // Utiliser le repository pour filtrer les sorties
         $sorties = $sortieRepository->findByFilters($etatRepository, $etat, $dateTime);
 
-        // Retourner les résultats en JSON
         return $this->json($sorties, Response::HTTP_OK, [], ['groups' => 'sortie:list']);
     }
 
@@ -339,36 +316,30 @@ class SortieController extends AbstractController
         EntityManagerInterface $entityManager,
         Request $request
     ): Response {
-        // Récupérer la sortie via l'ID
         $sortie = $sortieRepository->find($id);
 
         if (!$sortie) {
             return $this->redirectToRoute('app_sortie', [], Response::HTTP_NOT_FOUND);
         }
 
-        // Vérifier si la sortie est déjà commencée ou terminée
         $now = new \DateTime();
         if ($sortie->getDateHeureDebut() < $now) {
             $this->addFlash('error', 'La sortie a déjà commencé ou est terminée, elle ne peut pas être annulée.');
             return $this->redirectToRoute('app_sortie');
         }
 
-        // Récupérer l'état "Annulée"
         $etatAnnule = $etatRepository->findEtatAnnulee();
         if (!$etatAnnule) {
             throw new \Exception('État "Annulée" non trouvé dans la base de données.');
         }
 
-        // Si l'état est valide, annuler la sortie
         $sortie->setEtat($etatAnnule);
 
-        // Ajouter un motif d'annulation optionnel
         $motifAnnulation = $request->request->get('motif_annulation');
         if ($motifAnnulation) {
             $sortie->setInfosuppr($motifAnnulation);
         }
 
-        // Enregistrer les changements
         $entityManager->persist($sortie);
         $entityManager->flush();
 

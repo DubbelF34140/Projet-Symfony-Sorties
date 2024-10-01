@@ -32,13 +32,8 @@ class AppCommandCheckSortieStatusCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        // Log de démarrage
         $this->logger->info('Lancement de la vérification des statuts des sorties');
-
-        // Appeler ton service qui contient la logique
         $this->sortieStatusChecker->checkSortieStatus($this->logger, $this->etatRepository);
-
-        // Message de succès
         $output->writeln('Vérification des statuts des sorties terminée.');
 
         return Command::SUCCESS;

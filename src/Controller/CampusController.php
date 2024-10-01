@@ -16,12 +16,9 @@ class CampusController extends AbstractController
     #[Route('/admin/campus', name: 'app_campus', methods: ['GET', 'POST'])]
     public function index(Request $request, CampusRepository $campusRepository, EntityManagerInterface $entityManager): Response
     {
-        //récup du filtre
         $filter = ['nom' => $request->query->get('nom')];
 
-        //Recherche des villes avec filtre
         $campuses = $campusRepository->searchCampuses($filter);
-        //dump($query);
 
         $campus = new Campus();
         $form = $this->createForm(CampusType::class, $campus);

@@ -18,12 +18,9 @@ class VilleController extends AbstractController
                           VilleRepository $villeRepository,
                           EntityManagerInterface $entityManager): Response
     {
-        //récup du filtre
         $filter = ['nom' => $request->query->get('nom')];
 
-        //Recherche des villes avec filtre
         $villes = $villeRepository->searchVilles($filter);
-        //dump($query);
 
         $ville = new Ville();
         $form = $this->createForm(VilleType::class, $ville);

@@ -25,7 +25,6 @@ class LieuController extends AbstractController
     #[Route('/api/lieux/{villeId}', name: 'api_lieux', methods: ['GET'])]
     public function getLieux(int $villeId, LieuRepository $lieuRepository): JsonResponse
     {
-        // Récupérer les lieux par ville
         $lieux = $lieuRepository->findBy(['ville' => $villeId]);
 
         $lieuxData = [];

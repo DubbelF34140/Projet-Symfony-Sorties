@@ -38,7 +38,6 @@ class ParticipantController extends AbstractController
     #[Route('/participant/{id}/edit', name: 'app_participant_edit')]
     public function edit(Request $request, Participant $participant, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response {
         if (!$this->isGranted('ROLE_ADMIN') && $this->getUser() !== $participant) {
-            // Redirection ou lancer une exception d'accès refusé
             throw new AccessDeniedException('Vous n\'avez pas la permission de modifier ce profil.');
         }
 
@@ -243,14 +242,13 @@ class ParticipantController extends AbstractController
             $nomSlug = $slugger->slug(mb_substr($participant->getNom(), 0, 3))->lower();
             $generatedPassword = $prenomSlug . $nomSlug;
 
-            // Hashage du mot de passe
             $hashedPassword = $passwordHasher->hashPassword($participant, $generatedPassword);
             $participant->setPassword($hashedPassword);
 
             $em->persist($participant);
             $em->flush();
 
-            return $this->redirectToRoute('app_participant_admin'); // Redirection vers la liste des participants
+            return $this->redirectToRoute('app_participant_admin');
         }
 
         return $this->render('participant/register.html.twig', [
@@ -262,8 +260,6 @@ class ParticipantController extends AbstractController
     public function registerCSV(Request $request, EntityManagerInterface $em,  UserPasswordHasherInterface $passwordHasher): Response
     {
         $a = 2;
-        dump($a);
-        dump($request);
 
 
         $row = 1;
@@ -277,7 +273,6 @@ class ParticipantController extends AbstractController
             }
             fclose($csv);
         }
-        //dump($datas);
         $users[]=[];
         for($i = 2; $i < count($datas); $i++){
             $userF = new Participant();
@@ -292,19 +287,15 @@ class ParticipantController extends AbstractController
                 ->setCampus($this->campusRepository->find($datas[$i][7]))
                 ->setFirstconnection($datas[$i][6]);
             $userF->setRoles($datas[$i][9] != "" ? [$datas[$i][9]] : []  );
-            dump($userF);
 
             $userDB = $this->participantRepository->findBy(['pseudo' => $userF->getPseudo()]);
-            dump($userDB);
             if(!$userDB){
                 $em->persist($userF);
                 $users[] = $userF;
             }
         }
-        dump($users);
-        // Sauvegarde des utilisateurs dans la base
         $em->flush();
 
-        return $this->redirectToRoute('app_participant_admin'); // Redirection vers la liste des participants
+        return $this->redirectToRoute('app_participant_admin');
     }
 }

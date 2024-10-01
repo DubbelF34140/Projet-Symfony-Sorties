@@ -31,11 +31,9 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
 
     public function onAuthenticationSuccess(Request $request, $token): RedirectResponse
     {
-        // Récupérer l'utilisateur connecté
         $user = $this->security->getUser();
 
         if ($user->isFirstConnection()) {
-            // Si l'utilisateur est en première connexion, redirige vers la page de changement de mot de passe
             return new RedirectResponse($this->router->generate('app_participant_change_password', [
                 'id' => $user->getId(),
             ]));
