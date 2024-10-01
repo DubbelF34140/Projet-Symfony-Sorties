@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\Mapping as ORM;
-use http\Message;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -21,13 +20,16 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
+    #[Assert\NotBlank(message: 'L\'adresse email ne doit pas être vide')]
     #[Assert\Email(message: 'L\'adresse email n\'est pas valide.')]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
+    #[Assert\NotBlank(message: 'Le pseudo ne doit pas être vide')]
     #[ORM\Column(length: 255, unique: true)]
     #[Groups(['sortie:list'])]
     private ?string $pseudo = null;
+
     #[ORM\Column(nullable: true)]
     private ?string $photo = null;
 
@@ -40,15 +42,19 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var string The hashed password
      */
+    #[Assert\NotBlank(message: 'Le mot de passe ne doit pas être vide')]
     #[ORM\Column]
     private ?string $password = null;
 
+    #[Assert\NotBlank(message: 'Le nom ne doit pas être vide')]
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
+    #[Assert\NotBlank(message: 'Le prénom ne doit pas être vide')]
     #[ORM\Column(length: 255)]
     private ?string $prenom = null;
 
+    #[Assert\NotBlank(message: 'Le téléphone ne doit pas être vide')]
     #[ORM\Column(length: 255)]
     private ?string $telephone = null;
 
@@ -78,7 +84,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(?string $email): static
     {
         $this->email = $email;
 
@@ -90,7 +96,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->pseudo;
     }
 
-    public function setPseudo(string $pseudo): static
+    public function setPseudo(?string $pseudo): static
     {
         $this->pseudo = $pseudo;
 
@@ -102,7 +108,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->photo;
     }
 
-    public function setPhoto(string $photo): static
+    public function setPhoto(?string $photo): static
     {
         $this->photo = $photo;
 
@@ -174,7 +180,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->nom;
     }
 
-    public function setNom(string $nom): static
+    public function setNom(?string $nom): static
     {
         $this->nom = $nom;
 
@@ -186,7 +192,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->prenom;
     }
 
-    public function setPrenom(string $prenom): static
+    public function setPrenom(?string $prenom): static
     {
         $this->prenom = $prenom;
 
@@ -198,7 +204,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->telephone;
     }
 
-    public function setTelephone(string $telephone): static
+    public function setTelephone(?string $telephone): static
     {
         $this->telephone = $telephone;
 

@@ -16,6 +16,12 @@ class Campus
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\NotBlank(message: 'Le nom ne doit pas être vide')]
+    #[Assert\Length(
+        min: 1, max: 255,
+        minMessage: 'Le nom doit contenir au moins 1 caractère',
+        maxMessage: 'Le nom ne doit pas contenir plus de 50 caractères'
+    )]
     #[ORM\Column(length: 255)]
     #[Groups(['sortie:list'])]
     private ?string $nom = null;
@@ -48,7 +54,7 @@ class Campus
         return $this->nom;
     }
 
-    public function setNom(string $nom): static
+    public function setNom(?string $nom): static
     {
         $this->nom = $nom;
 

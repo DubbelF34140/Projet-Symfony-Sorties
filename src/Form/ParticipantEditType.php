@@ -26,24 +26,19 @@ class ParticipantEditType extends AbstractType
                 'mapped' => false,
             ])
             ->add('email', TextType::class, [
-                'label' => 'Email',
-                'required' => false,
+                'label' => 'Email'
             ])
             ->add('pseudo', TextType::class, [
-                'label' => 'Pseudo',
-                'required' => false,
+                'label' => 'Pseudo'
             ])
             ->add('nom', TextType::class, [
-                'label' => 'Nom',
-                'required' => false,
+                'label' => 'Nom'
             ])
             ->add('prenom', TextType::class, [
-                'label' => 'Prénom',
-                'required' => false,
+                'label' => 'Prénom'
             ])
             ->add('telephone', TextType::class, [
-                'label' => 'Téléphone',
-                'required' => false,
+                'label' => 'Téléphone'
             ]);
             if ($options['is_admin']) {
                 $builder
