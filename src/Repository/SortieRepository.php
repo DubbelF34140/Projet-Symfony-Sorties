@@ -144,20 +144,15 @@ class SortieRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('s')
             ->innerJoin('s.inscrits', 'p')
+            ->innerJoin('s.etat', 'e')
             ->where('p.id = :participantId')
+            ->andWhere('e.libelle = :etatOuvert')
             ->setParameter('participantId', $participant->getId())
+            ->setParameter('etatOuvert', 'Ouverte')
             ->getQuery()
             ->getResult();
     }
 
-    public function getSortiesOrganisees(Participant $participant)
-    {
-        return $this->createQueryBuilder('s')
-            ->where('s.organisateur = :participant')
-            ->setParameter('participant', $participant)
-            ->getQuery()
-            ->getResult();
-    }
 
     public function findDetailSortie(int $id)
     {
@@ -179,7 +174,6 @@ class SortieRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
-
 
 
 }

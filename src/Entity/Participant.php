@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ParticipantRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -73,6 +75,17 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(nullable: true)]
     private ?string $sessionId;
+
+    /**
+     * @var Collection<int, Sortie>
+     */
+    #[ORM\ManyToMany(targetEntity: Sortie::class, mappedBy: 'PrivateParticipants')]
+    private Collection $PrivateParticipants;
+
+    public function __construct()
+    {
+        $this->PrivateParticipants = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -267,6 +280,33 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSessionId(string $sessionId): static
     {
         $this->sessionId = $sessionId;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Sortie>
+     */
+    public function getPrivateParticipants(): Collection
+    {
+        return $this->PrivateParticipants;
+    }
+
+    public function addPrivateParticipant(Sortie $privateParticipant): static
+    {
+        if (!$this->PrivateParticipants->contains($privateParticipant)) {
+            $this->PrivateParticipants->add($privateParticipant);
+            $privateParticipant->addPrivateParticipant($this);
+        }
+
+        return $this;
+    }
+
+    public function removePrivateParticipant(Sortie $privateParticipant): static
+    {
+        if ($this->PrivateParticipants->removeElement($privateParticipant)) {
+            $privateParticipant->removePrivateParticipant($this);
+        }
 
         return $this;
     }

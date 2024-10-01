@@ -66,7 +66,8 @@ class Sortie
     /**
      * @var Collection<int, Participant>
      */
-    #[ORM\ManyToMany(targetEntity: Participant::class)]
+    #[ORM\ManyToMany(targetEntity: Participant::class, inversedBy: 'inscriptions')]
+    #[ORM\JoinTable(name: 'sortie_participant')]
     #[Groups(['sortie:list'])]
     private Collection $inscrits;
 
@@ -87,9 +88,17 @@ class Sortie
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $infosuppr = null;
 
+    /**
+     * @var Collection<int, Participant>
+     */
+    #[ORM\ManyToMany(targetEntity: Participant::class, inversedBy: 'privateSorties')]
+    #[ORM\JoinTable(name: 'sortie_private_participant')]
+    private Collection $PrivateParticipants;
+
     public function __construct()
     {
         $this->inscrits = new ArrayCollection();
+        $this->PrivateParticipants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -249,6 +258,30 @@ class Sortie
     public function setInfosuppr(?string $infosuppr): static
     {
         $this->infosuppr = $infosuppr;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Participant>
+     */
+    public function getPrivateParticipants(): Collection
+    {
+        return $this->PrivateParticipants;
+    }
+
+    public function addPrivateParticipant(Participant $privateParticipant): static
+    {
+        if (!$this->PrivateParticipants->contains($privateParticipant)) {
+            $this->PrivateParticipants->add($privateParticipant);
+        }
+
+        return $this;
+    }
+
+    public function removePrivateParticipant(Participant $privateParticipant): static
+    {
+        $this->PrivateParticipants->removeElement($privateParticipant);
 
         return $this;
     }

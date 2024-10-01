@@ -58,21 +58,42 @@ class ParticipantRepository extends ServiceEntityRepository implements PasswordU
     //            ->getOneOrNullResult()
     //        ;
     //    }
-    public function removeParticipantIfNoSorties(Participant $participant, EntityManagerInterface $entityManager, SortieRepository $sortieRepository): void
-    {
-        // Vérifier si le participant est inscrit à des sorties
-        $sortiesInscrit = $sortieRepository->getSortiesInscrit($participant);
+    public function removeParticipantIfNoSorties(
+        Participant $participant,
+        EntityManagerInterface $entityManager,
+        SortieRepository $sortieRepository
+    ): void {
+        // Récupérer uniquement les sorties ouvertes auxquelles le participant est inscrit
+        $sortiesInscritOuvertes = $sortieRepository->getSortiesInscrit($participant);
 
-        // Si le participant est inscrit à des sorties, empêcher la suppression
-        if (!empty($sortiesInscrit)) {
-            throw new \Exception("Le participant est inscrit à des sorties et ne peut pas être supprimé.");
+        // Si le participant est inscrit à des sorties ouvertes, on l'enlève de ces sorties
+        if (!empty($sortiesInscritOuvertes)) {
+            foreach ($sortiesInscritOuvertes as $sortie) {
+                $sortie->removeInscrit($participant);
+            }
         }
 
-        // Si le participant n'est pas inscrit, procéder à la suppression
-        $entityManager->remove($participant);
-        $entityManager->flush();
+        // Vérifier si le participant est encore inscrit à d'autres sorties
+        $autresSortiesInscrit = $sortieRepository->getSortiesInscrit($participant);
+
+        // Si le participant n'est inscrit à aucune autre sortie, le supprimer
+        if (empty($autresSortiesInscrit)) {
+            $entityManager->remove($participant);
+            $entityManager->flush();
+        } else {
+            throw new \Exception("Le participant est encore inscrit à des sorties ouvertes.");
+        }
     }
 
+    public function searchParticipants(string $query): array
+    {
+        return $this->createQueryBuilder('p')
+            ->where('p.nom LIKE :query OR p.pseudo LIKE :query')
+            ->setParameter('query', '%' . $query . '%')
+            ->setMaxResults(10)  // Limite les résultats pour éviter une surcharge
+            ->getQuery()
+            ->getResult();
+    }
 
 
 }

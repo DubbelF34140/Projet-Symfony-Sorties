@@ -16,6 +16,7 @@ use PHPUnit\Framework\Constraint\IsTrue;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -297,5 +298,35 @@ class ParticipantController extends AbstractController
         $em->flush();
 
         return $this->redirectToRoute('app_participant_admin');
+    }
+
+
+
+    #[Route('/api/participants/search', name: 'api_participants_search', methods: ['GET'])]
+    public function search(Request $request, ParticipantRepository $participantRepository): JsonResponse
+    {
+        // Récupérer le terme de recherche de la requête
+        $query = $request->query->get('q', '');
+
+        // Si le terme de recherche est vide, renvoyer une réponse vide
+        if (empty($query)) {
+            return new JsonResponse([], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        // Rechercher les participants correspondants
+        $participants = $participantRepository->searchParticipants($query);
+
+        // Transformer les participants en un tableau simple pour la réponse JSON
+        $results = [];
+        foreach ($participants as $participant) {
+            $results[] = [
+                'id' => $participant->getId(),
+                'nom' => $participant->getNom(),
+                'pseudo' => $participant->getPseudo(),
+            ];
+        }
+
+        // Retourner la réponse JSON avec les résultats
+        return new JsonResponse($results);
     }
 }

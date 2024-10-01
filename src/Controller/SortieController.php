@@ -8,6 +8,7 @@ use App\Form\SortieType;
 use App\Repository\CampusRepository;
 use App\Repository\EtatRepository;
 use App\Repository\LieuRepository;
+use App\Repository\ParticipantRepository;
 use App\Repository\SortieRepository;
 use App\Repository\VilleRepository;
 use App\Service\SortieStatusService;
@@ -346,5 +347,37 @@ class SortieController extends AbstractController
         $this->addFlash('success', 'La sortie a été annulée avec succès.');
         return $this->redirectToRoute('app_sortie');
     }
+
+    #[Route('/api/sorties/{id}/add-private-participant', name: 'api_add_private_participant', methods: ['POST'])]
+    public function addPrivateParticipant(Request $request, Sortie $sortie, ParticipantRepository $participantRepository, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $participant = $participantRepository->find($data['participantId']);
+
+        if ($participant && !$sortie->getPrivateParticipants()->contains($participant)) {
+            $sortie->addPrivateParticipant($participant);
+            $sortie->addInscrit($participant);
+            $entityManager->flush();
+            return new JsonResponse(['status' => 'Participant ajouté'], JsonResponse::HTTP_OK);
+        }
+
+        return new JsonResponse(['status' => 'Participant non trouvé ou déjà ajouté'], JsonResponse::HTTP_BAD_REQUEST);
+    }
+
+    #[Route('/api/sorties/{id}/remove-private-participant', name: 'api_remove_private_participant', methods: ['POST'])]
+    public function removePrivateParticipant(Request $request, Sortie $sortie, ParticipantRepository $participantRepository, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $participant = $participantRepository->find($data['participantId']);
+
+        if ($participant && $sortie->getPrivateParticipants()->contains($participant)) {
+            $sortie->removePrivateParticipant($participant);
+            $entityManager->flush();
+            return new JsonResponse(['status' => 'Participant retiré'], JsonResponse::HTTP_OK);
+        }
+
+        return new JsonResponse(['status' => 'Participant non trouvé ou déjà retiré'], JsonResponse::HTTP_BAD_REQUEST);
+    }
+
 
 }
