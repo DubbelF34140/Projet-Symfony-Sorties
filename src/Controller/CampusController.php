@@ -34,12 +34,21 @@ class CampusController extends AbstractController
         return $this->render('campus/admin.html.twig', [
             'campuses' => $campuses,
             'form' => $form->createView(),
+            'idCampus' => 0
         ]);
     }
 
-    #[Route('/admin/campus/{id<\d+>}/update', name: 'campus_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Campus $campus, EntityManagerInterface $entityManager): Response
+    #[Route('/admin/campus/{id<\d+>}', name: 'campus_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Campus $campus,
+                         EntityManagerInterface $entityManager,
+                         CampusRepository $campusRepository): Response
     {
+        //récup du filtre
+        $filter = ['nom' => $request->query->get('nom')];
+
+        //Recherche des villes avec filtre
+        $campuses = $campusRepository->searchCampuses($filter);
+
         $form = $this->createForm(CampusType::class, $campus);
         $form->handleRequest($request);
 
@@ -49,10 +58,16 @@ class CampusController extends AbstractController
             return $this->redirectToRoute('app_campus');
         }
 
-        return $this->render('campus/edit.html.twig', [
-            'campus' => $campus,
+        return $this->render('campus/admin.html.twig', [
+            'campuses' => $campuses,
             'form' => $form->createView(),
+            'idCampus' => $campus->getId()
         ]);
+
+//        return $this->render('campus/edit.html.twig', [
+//            'campus' => $campus,
+//            'form' => $form->createView(),
+//        ]);
     }
 
     #[Route('admin/campus/{id<\d+>}/delete', name: 'campus_delete', methods: ['POST'])]

@@ -34,13 +34,24 @@ class VilleController extends AbstractController
 
         return $this->render('ville/admin.html.twig', [
             'villes' => $villes,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'idVille' => 0
         ]);
     }
 
-    #[Route('/admin/ville/{id<\d+>}/update', name: 'ville_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Ville $ville, EntityManagerInterface $entityManager): Response
+    #[Route('/admin/ville/{id<\d+>}', name: 'ville_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request,
+                         Ville $ville,
+                         EntityManagerInterface $entityManager,
+                         VilleRepository $villeRepository): Response
     {
+        //récup du filtre
+        $filter = ['nom' => $request->query->get('nom')];
+
+        //Recherche des villes avec filtre
+        $villes = $villeRepository->searchVilles($filter);
+        //dump($query);
+
         $form = $this->createForm(VilleType::class, $ville);
         $form->handleRequest($request);
 
@@ -50,9 +61,10 @@ class VilleController extends AbstractController
             return $this->redirectToRoute('app_ville');
         }
 
-        return $this->render('ville/edit.html.twig', [
-            'ville' => $ville,
+        return $this->render('ville/admin.html.twig', [
+            'villes' => $villes,
             'form' => $form->createView(),
+            'idVille' => $ville->getId()
         ]);
     }
 

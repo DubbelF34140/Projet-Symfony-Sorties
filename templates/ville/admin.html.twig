@@ -50,7 +50,7 @@
                         <label for="nom" class="form-label">Le nom de la ville contient</label>
                         <div class="input-group">
                             <input type="text" name="nom" id="nom" value="{{ app.request.get('nom') }}" class="form-control" placeholder="Rechercher une ville">
-                            <button type="submit" class="btn btn-primary ms-2">
+                            <button type="submit" class="btn btn-primary ms-2" >
                                 <i class="fas fa-search"></i> Rechercher
                             </button>
                         </div>
@@ -66,28 +66,52 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for ville in villes %}
-                        <tr>
-                            <td>
-                                <span class="badge bg-info text-dark">{{ ville.nom }}</span>
-                            </td>
-                            <td>
-                                <span class="badge bg-info text-dark">{{ ville.codePostal }}</span>
-                            </td>
-                            <td class="text-center">
-                                <a href="{{ path('ville_edit', {id: ville.id}) }}" class="btn btn-sm btn-warning me-2" title="Modifier">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <form method="post" action="{{ path('ville_delete', {id: ville.id}) }}" style="display:inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ville ?');">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ville.id) }}">
-                                    <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% endfor %}
+                        {% for ville in villes %}
+                            <tr>
+                                {% if (ville.id != idVille) %}
+                                    <td>
+                                        <span class="badge bg-info text-dark">{{ ville.nom }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info text-dark">{{ ville.codePostal }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ path('ville_edit', {id: ville.id}) }}" class="btn btn-sm btn-warning me-2" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('ville_delete', {id: ville.id}) }}" style="display:inline-block;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ville ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ville.id) }}">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                {% else %}
+                                    {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
+                                    <td>
+                                        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder':  'ville.nom' }}) }}
+                                        <div class="text-danger">
+                                            {{ form_errors(form.nom) }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ form_widget(form.codePostal, {'attr': {'class': 'form-control', 'placeholder':  'codeP.nom' }}) }}
+                                        <div class="text-danger">
+                                            {{ form_errors(form.codePostal) }}
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="submit" class="btn btn-sm btn-success" title="Modifier">
+                                            <i class="fas fa-plus"></i> Modifier
+                                        </button>
+                                    </td>
+                                    {{ form_end(form) }}
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+
                     <!-- Formulaire d'ajout de ville -->
+                    {% if (idVille == 0) %}
                     <tr>
                         {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
                         <td>
@@ -109,6 +133,7 @@
                         </td>
                         {{ form_end(form) }}
                     </tr>
+                    {% endif %}
                     </tbody>
                 </table>
             </div>
