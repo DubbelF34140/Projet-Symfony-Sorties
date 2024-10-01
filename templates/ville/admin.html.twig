@@ -89,13 +89,13 @@
                                 {% else %}
                                     {{ form_start(form, {'attr': {'data-turbo': 'false'}}) }}
                                     <td>
-                                        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder':  'ville.nom' }}) }}
+                                        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder':  'Nom' }}) }}
                                         <div class="text-danger">
                                             {{ form_errors(form.nom) }}
                                         </div>
                                     </td>
                                     <td>
-                                        {{ form_widget(form.codePostal, {'attr': {'class': 'form-control', 'placeholder':  'codeP.nom' }}) }}
+                                        {{ form_widget(form.codePostal, {'attr': {'class': 'form-control', 'placeholder':  'Code Postal' }}) }}
                                         <div class="text-danger">
                                             {{ form_errors(form.codePostal) }}
                                         </div>

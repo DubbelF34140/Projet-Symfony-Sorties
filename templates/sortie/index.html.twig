@@ -288,21 +288,23 @@
         <div class="d-flex justify-content-center my-4">
             <nav>
                 <ul class="pagination justify-content-center">
-                    {% if previousPage is not null %}
+                    {% if previousPage %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ path('app_sortie', { page: previousPage}) }}">Précédent</a>
+                            <a class="page-link" href="{{ path('app_sortie', { page: previousPage }) }}">Précédent</a>
                         </li>
                     {% else %}
                         <li class="page-item disabled">
                             <a class="page-link">Précédent</a>
                         </li>
                     {% endif %}
-                    {% for page in 1..totalPages %}
+
+                    {% for page in range(1, totalPages) %}
                         <li class="page-item {% if currentPage == page %}active{% endif %}">
-                            <a class="page-link" href="{{ path('app_sortie', { page: page}) }}">{{ page }}</a>
+                            <a class="page-link" href="{{ path('app_sortie', { page: page }) }}">{{ page }}</a>
                         </li>
                     {% endfor %}
-                    {% if nextPage is not null %}
+
+                    {% if nextPage %}
                         <li class="page-item">
                             <a class="page-link" href="{{ path('app_sortie', { page: nextPage }) }}">Suivant</a>
                         </li>

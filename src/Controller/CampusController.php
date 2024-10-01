@@ -25,6 +25,10 @@ class CampusController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$campus->getNom()) {
+                $this->addFlash('danger', 'Le champ nom ne peut pas être vide.');
+                return $this->redirectToRoute('app_campus');
+            }
             $entityManager->persist($campus);
             $entityManager->flush();
 
@@ -43,31 +47,30 @@ class CampusController extends AbstractController
                          EntityManagerInterface $entityManager,
                          CampusRepository $campusRepository): Response
     {
-        //récup du filtre
+        // Récupération du filtre
         $filter = ['nom' => $request->query->get('nom')];
 
-        //Recherche des villes avec filtre
+        // Recherche des campus avec filtre
         $campuses = $campusRepository->searchCampuses($filter);
 
         $form = $this->createForm(CampusType::class, $campus);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$campus->getNom()) {
+                $this->addFlash('danger', 'Le champ nom ne peut pas être vide.');
+                return $this->redirectToRoute('campus_edit', ['id' => $campus->getId()]);
+            }
             $entityManager->flush();
-
             return $this->redirectToRoute('app_campus');
         }
+
 
         return $this->render('campus/admin.html.twig', [
             'campuses' => $campuses,
             'form' => $form->createView(),
             'idCampus' => $campus->getId()
         ]);
-
-//        return $this->render('campus/edit.html.twig', [
-//            'campus' => $campus,
-//            'form' => $form->createView(),
-//        ]);
     }
 
     #[Route('admin/campus/{id<\d+>}/delete', name: 'campus_delete', methods: ['POST'])]

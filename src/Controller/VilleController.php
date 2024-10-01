@@ -27,6 +27,14 @@ class VilleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$ville->getNom()) {
+                $this->addFlash('danger', 'Le champ nom ne peut pas être vide.');
+                return $this->redirectToRoute('app_ville');
+            }
+            if (!$ville->getCodePostal()) {
+                $this->addFlash('danger', 'Le champ code postal ne peut pas être vide.');
+                return $this->redirectToRoute('app_ville');
+            }
             $entityManager->persist($ville);
             $entityManager->flush();
             return $this->redirectToRoute('app_ville');
@@ -56,8 +64,15 @@ class VilleController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$ville->getNom()) {
+                $this->addFlash('danger', 'Le champ nom ne peut pas être vide.');
+                return $this->redirectToRoute('ville_edit', ['id' => $ville->getId()]);
+            }
+            if (!$ville->getCodePostal()) {
+                $this->addFlash('danger', 'Le champ code postal ne peut pas être vide.');
+                return $this->redirectToRoute('ville_edit', ['id' => $ville->getId()]);
+            }
             $entityManager->flush();
-
             return $this->redirectToRoute('app_ville');
         }
 

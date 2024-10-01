@@ -29,8 +29,6 @@ class SortieController extends AbstractController
         SortieRepository $sortieRepository,
         CampusRepository $campusRepository,
         EtatRepository $etatRepository,
-        SortieStatusService $service,
-        LoggerInterface $logger,
         PaginatorInterface $paginator
     ): Response {
         $user = $this->getUser();
@@ -50,7 +48,7 @@ class SortieController extends AbstractController
         $campuss = $campusRepository->findAll();
 
         $query = $sortieRepository->searchSorties($user, $etatRepository, $filters);
-        $page = $request->query->getInt('page', 1);
+        $page = max(1, $request->query->getInt('page', 1));
 
         $sorties = $paginator->paginate(
             $query,
@@ -58,12 +56,14 @@ class SortieController extends AbstractController
             10
         );
 
+        $totalPages = max(1, ceil($sorties->getTotalItemCount() / 10));
+
         return $this->render('sortie/index.html.twig', [
             'sorties' => $sorties,
             'campuss' => $campuss,
             'campus' => $campus,
             'currentPage' => $page,
-            'totalPages' => ceil($sorties->getTotalItemCount() / 10),
+            'totalPages' =>  $totalPages,
             'previousPage' => $page > 1 ? $page - 1 : null,
             'nextPage' => $page < ceil($sorties->getTotalItemCount() / 10) ? $page + 1 : null,
 

@@ -15,6 +15,7 @@ class CampusType extends AbstractType
         $builder
             ->add('nom', TextType::class, [
                 'label' => 'Nom du campus',
+                'required' => true,
                 'attr' => [
                     'placeholder' => 'Entrez le nom du campus'
                 ]
