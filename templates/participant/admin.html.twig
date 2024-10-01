@@ -1,56 +1,91 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Liste des Participants{% endblock %}
+{% block stylesheets %}
+    <!-- Utilisation de la version 5.3 de Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        /* Custom styles for better aesthetics */
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            border-radius: 0.25rem 0.25rem 0 0;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .btn-group-sm > .btn {
+            padding: 0.375rem 0.75rem;
+        }
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+        }
+        .form-container {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 0.25rem;
+        }
+    </style>
+{% endblock %}
 
 {% block body %}
     <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center">
-            <h1 class="display-4">Liste des Participants</h1>
-            <a href="{{ path('app_participant_register') }}" class="btn btn-success btn-lg">
-                <i class="fas fa-user-plus"></i> Ajouter un participant
-            </a>
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Liste des Participants</h2>
+                <a href="{{ path('app_participant_register') }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-user-plus"></i> Ajouter un participant
+                </a>
+            </div>
+
+            <div class="card-body">
+                <table class="table table-hover table-striped table-bordered mt-4">
+                    <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Pseudo</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for participant in participants %}
+                        <tr>
+                            <td>{{ participant.id }}</td>
+                            <td>{{ participant.pseudo }}</td>
+                            <td>{{ participant.email }}</td>
+                            <td>
+                                {% if 'ROLE_ADMIN' in participant.roles %}
+                                    <span class="badge bg-danger">Administrateur</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Utilisateur</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                    <a href="{{ path('app_participant_edit', { id: participant.id }) }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ path('app_participant_admin_delete', { id: participant.id }) }}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" data-bs-toggle="tooltip" data-bs-placement="top" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">Aucun participant trouvé.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-
-        <table class="table table-hover table-striped table-bordered mt-4">
-            <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Pseudo</th>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for participant in participants %}
-                <tr>
-                    <td>{{ participant.id }}</td>
-                    <td>{{ participant.pseudo }}</td>
-                    <td>{{ participant.email }}</td>
-                    <td>
-                        {% if 'ROLE_ADMIN' in participant.roles %}
-                            <span class="badge bg-danger">Administrateur</span>
-                        {% else %}
-                            <span class="badge bg-secondary">Utilisateur</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ path('app_participant_edit', { id: participant.id }) }}" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <a href="{{ path('app_participant_admin_delete', { id: participant.id }) }}" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');" data-bs-toggle="tooltip" data-bs-placement="top" title="Supprimer">
-                            <i class="fas fa-trash"></i>
-                        </a>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted">Aucun participant trouvé.</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
         <div class="card shadow-sm p-4 mt-4">
             <h2 class="h4">Importer des participants via un fichier CSV</h2>
             {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'data-turbo': 'false'}}) }}
@@ -64,7 +99,6 @@
             {{ form_end(form) }}
         </div>
     </div>
-
 {% endblock %}
 
 {% block javascripts %}

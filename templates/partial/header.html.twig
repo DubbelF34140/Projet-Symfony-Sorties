@@ -9,6 +9,7 @@
         {% else %}
             <a href="{{ path('app_sortie') }}" class="navbar-brand">Sortie.com</a>
         {% endif %}
+
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
                 {% if is_granted('ROLE_USER') %}
@@ -23,7 +24,11 @@
                 {% endif %}
             </ul>
         </div>
+
         <div class="d-flex align-items-center ms-auto">
+            <!-- Ajout de la date du jour -->
+            <span class="me-3">{{ "now"|date("d/m/Y") }}</span>
+
             {% if app.user %}
                 <span class="me-2">{{ app.user.email }}</span>
                 <a class="btn btn-sm btn-secondary ms-2" href="{{ path('app_logout') }}">Se déconnecter</a>
