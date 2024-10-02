@@ -47,10 +47,8 @@ class CampusController extends AbstractController
                          EntityManagerInterface $entityManager,
                          CampusRepository $campusRepository): Response
     {
-        // Récupération du filtre
         $filter = ['nom' => $request->query->get('nom')];
 
-        // Recherche des campus avec filtre
         $campuses = $campusRepository->searchCampuses($filter);
 
         $form = $this->createForm(CampusType::class, $campus);

@@ -7,7 +7,6 @@
         <i class="fas fa-arrow-left"></i>
     </button>
     <div class="container mt-5" style="margin-bottom: 100px">
-        <!-- Titre et badge d'état de la sortie -->
         <div class="d-flex justify-content-between align-items-center">
             <h1 class="display-4">{{ sortie.nom|capitalize }}</h1>
             <h1>
@@ -29,7 +28,6 @@
             </h1>
         </div>
 
-        <!-- Section des détails de la sortie et la carte -->
         <div class="row mt-4">
             <div class="col-md-6">
                 <div class="card mb-3 shadow-sm border-0">
@@ -51,7 +49,6 @@
                     </div>
                 </div>
 
-                <!-- Section des détails d'annulation si la sortie est annulée -->
                 {% if sortie.etat.libelle == 'Annulée' %}
                     <div class="card mb-2 shadow-sm border-0">
                         <div class="card-body" style="background-color: rgb(202,198,198,0.2);border-radius: 5px">
@@ -62,7 +59,6 @@
                 {% endif %}
             </div>
 
-            <!-- Carte de localisation (col-md-6 pour 50% de l'écran) -->
                 <div class="col-md-6" style="background-color: rgb(202,198,198,0.2);border-radius: 5px; height: 551px; width: 100%;">
                     <div class="card-body">
                         <h2 class="text-primary">Localisation</h2>
@@ -71,7 +67,6 @@
                 </div>
         </div>
 
-        <!-- Bouton pour gérer les participants du groupe privé -->
         {% if (sortie.organisateur.pseudo == app.user.pseudo)%}
             <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#managePrivateGroupModal">
                 Groupe Privé
@@ -79,7 +74,6 @@
         {%endif%}
 
 
-        <!-- Section de la liste des participants -->
         <h2 class="mt-5 mb-3">Liste des Participants</h2>
         {% if(sortie.organisateur.pseudo == app.user.pseudo) %}
         <button type="button" id="contactSelected" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#contactParticipantsModal" disabled=true>
@@ -120,7 +114,6 @@
             </table>
         </div>
 
-        <!-- Modal -->
         <div class="modal fade" id="contactParticipantsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -151,7 +144,6 @@
 
     </div>
 
-    <!-- Modal pour ajouter/retirer des participants au groupe privé -->
     <div class="modal fade" id="managePrivateGroupModal" tabindex="-1" aria-labelledby="managePrivateGroupModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -160,14 +152,12 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- Champ d'autocomplétion pour ajouter des participants -->
                     <div class="mb-3">
                         <label for="participant-autocomplete" class="form-label">Ajouter un participant</label>
                         <input type="text" id="participant-autocomplete" class="form-control shadow-sm" placeholder="Rechercher un participant..." style="border-radius: 8px; background-color: rgba(255, 255, 255, 0.8);">
                         <div id="autocomplete-results" class="list-group mt-2 shadow-sm" style="border-radius: 8px; height: 100px; overflow-y: auto;"></div>
                     </div>
 
-                    <!-- Liste des participants déjà dans le groupe privé -->
                     <h5 class="mt-4">Participants dans le groupe privé</h5>
                     <ul id="private-participants-list" class="list-group">
                         {% for participant in sortie.privateParticipants %}
@@ -219,7 +209,6 @@
                 contactButton.disabled = !anyChecked;
             }
 
-            // Remplir le champ caché avec les emails des participants sélectionnés lors de l'ouverture de la modal
             contactButton.addEventListener('click', function () {
                 const selectedEmails = Array.from(checkboxes)
                     .filter(checkbox => checkbox.checked)
@@ -257,8 +246,7 @@
                     .then(data => {
                         console.log(data);
                         if (data.message) {
-                            alert(data.message); // Affiche le message de succès
-                            // Ferme la modal après succès
+                            alert(data.message);
                             const modal = bootstrap.Modal.getInstance(document.getElementById('contactParticipantsModal'));
                             modal.hide();
                         }
@@ -271,20 +259,16 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Coordonnées latitude et longitude de la sortie
             const latitude = {{ sortie.lieu.latitude }};
             const longitude = {{ sortie.lieu.longitude }};
 
-            // Initialisation de la carte
             const map = L.map('map').setView([latitude, longitude], 13);
 
-            // Ajouter une couche de tuiles (carte de fond)
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '© OpenStreetMap'
             }).addTo(map);
 
-            // Ajouter un marqueur aux coordonnées de la sortie
             L.marker([latitude, longitude]).addTo(map)
                 .bindPopup("{{ sortie.lieu.nom }}")
                 .openPopup();
@@ -296,7 +280,6 @@
             const autocompleteResults = document.getElementById('autocomplete-results');
             const privateParticipantsList = document.getElementById('private-participants-list');
 
-            // Fonction pour effectuer la requête d'autocomplétion
             autocompleteInput.addEventListener('input', function () {
                 const query = this.value;
 
@@ -320,21 +303,17 @@
                         });
                 }
             });
-            // Fonction pour ajouter un participant au groupe privé
             function addParticipantToPrivateGroup(participant) {
-                // Vérifier si le participant est déjà dans la liste
                 const existingItem = privateParticipantsList.querySelector(`[data-id="${participant.id}"]`);
                 if (existingItem) {
-                    return; // Le participant est déjà dans la liste, on ne fait rien
+                    return;
                 }
 
-                // Créer l'élément de la liste
                 const listItem = document.createElement('li');
                 listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
                 listItem.textContent = participant.pseudo;
                 listItem.dataset.id = participant.id;
 
-                // Créer le bouton de suppression
                 const removeButton = document.createElement('button');
                 removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'remove-participant-btn');
                 removeButton.textContent = 'Retirer';
@@ -343,13 +322,10 @@
                     removeParticipantFromPrivateGroup(participant.id, listItem);
                 });
 
-                // Ajouter le bouton de suppression à l'élément de la liste
                 listItem.appendChild(removeButton);
 
-                // Ajouter l'élément à la liste des participants privés
                 privateParticipantsList.appendChild(listItem);
 
-                // Envoyer une requête pour ajouter le participant au groupe privé (AJAX)
                 fetch(`/api/sorties/{{ sortie.id }}/add-private-participant`, {
                     method: 'POST',
                     headers: {
@@ -360,15 +336,12 @@
                     if (response.ok) {
                         console.log('Participant ajouté');
                     } else {
-                        // Si la requête échoue, retirer l'élément ajouté
                         listItem.remove();
                     }
                 });
             }
 
-            // Fonction pour retirer un participant du groupe privé
             function removeParticipantFromPrivateGroup(participantId, listItem) {
-                // Envoyer une requête pour retirer le participant du groupe privé (AJAX)
                 fetch(`/api/sorties/{{ sortie.id }}/remove-private-participant`, {
                     method: 'POST',
                     headers: {
@@ -378,18 +351,15 @@
                 }).then(response => {
                     if (response.ok) {
                         console.log('Participant retiré');
-                        // Retirer l'élément de la liste
                         listItem.remove();
                     }
                 });
             }
-            // Retirer un participant du groupe privé
             privateParticipantsList.querySelectorAll('.remove-participant-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const participantId = this.dataset.id;
                     this.closest('li').remove();
 
-                    // Envoyer une requête pour retirer le participant du groupe privé (AJAX)
                     fetch(`/api/sorties/{{ sortie.id }}/remove-private-participant`, {
                         method: 'POST',
                         headers: {

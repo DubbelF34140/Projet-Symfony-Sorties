@@ -119,31 +119,11 @@ class ParticipantController extends AbstractController
         $form = $this->createFormBuilder($defaultData)
             ->add('fichier', FileType::class, [
                 'required' => false,
-//                'constraints' => [
-//                    new Assert\Callback([
-//                        // Ici $value prend la valeur du champs que l'on est en train de valider,
-//                        // ainsi, pour un champs de type TextType, elle sera de type string.
-//                        'callback' => static function (?FileType $value, ExecutionContextInterface $context) {
-//                            if (!$value) {
-//                                return;
-//                            }
-//
-//                            if ($value->get('fichier')->getData()->getClientOriginalExtension() != "csv") {
-//                                $context
-//                                    ->buildViolation('Le fichier doit être un fichier csv')
-//                                    ->atPath('[fichier]')
-//                                    ->addViolation()
-//                                ;
-//                            }
-//                        },
-//                    ]),
-//                ],
             ])
             ->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            // data is an array with "name", "email", and "message" keys
             $file = $form->get('fichier')->getData();
             if ($file) {
                 if($file->getClientOriginalExtension() != "csv"){
@@ -152,9 +132,8 @@ class ParticipantController extends AbstractController
                         'form' => $form->createView(),
                     ]);
                 } else {
-                    // Gérer le stockage du fichier
-                    $filename = 'utilisateurs.csv'; // Générer un nom de fichier unique
-                    $file->move($this->getParameter('fichierCSV_directory'), $filename); // Déplacez le fichier
+                    $filename = 'utilisateurs.csv';
+                    $file->move($this->getParameter('fichierCSV_directory'), $filename);
                 }
             }
             $row = 1;
@@ -208,21 +187,17 @@ class ParticipantController extends AbstractController
         $participant = $participantRepository->find($id);
 
         if (!$participant) {
-            // Si le participant n'existe pas, rediriger avec un message d'erreur
             $this->addFlash('error', 'Le participant n\'existe pas.');
             return $this->redirectToRoute('app_participant_admin', [], Response::HTTP_NOT_FOUND);
         }
 
         try {
-            // Supprimer les associations du participant et le participant lui-même
             $participantRepository->removeParticipantIfNoSorties($participant, $entityManager, $sortieRepository);
             $this->addFlash('success', 'Le participant a été supprimé avec succès.');
         } catch (\Exception $e) {
-            // Ajouter un message flash en cas d'erreur
             $this->addFlash('danger', $e->getMessage());
         }
 
-        // Rediriger vers la liste des participants
         return $this->redirectToRoute('app_participant_admin');
     }
 
@@ -305,18 +280,14 @@ class ParticipantController extends AbstractController
     #[Route('/api/participants/search', name: 'api_participants_search', methods: ['GET'])]
     public function search(Request $request, ParticipantRepository $participantRepository): JsonResponse
     {
-        // Récupérer le terme de recherche de la requête
         $query = $request->query->get('q', '');
 
-        // Si le terme de recherche est vide, renvoyer une réponse vide
         if (empty($query)) {
             return new JsonResponse([], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        // Rechercher les participants correspondants
         $participants = $participantRepository->searchParticipants($query);
 
-        // Transformer les participants en un tableau simple pour la réponse JSON
         $results = [];
         foreach ($participants as $participant) {
             $results[] = [
@@ -326,7 +297,6 @@ class ParticipantController extends AbstractController
             ];
         }
 
-        // Retourner la réponse JSON avec les résultats
         return new JsonResponse($results);
     }
 }

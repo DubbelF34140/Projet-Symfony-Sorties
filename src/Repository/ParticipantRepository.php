@@ -63,20 +63,16 @@ class ParticipantRepository extends ServiceEntityRepository implements PasswordU
         EntityManagerInterface $entityManager,
         SortieRepository $sortieRepository
     ): void {
-        // Récupérer uniquement les sorties ouvertes auxquelles le participant est inscrit
         $sortiesInscritOuvertes = $sortieRepository->getSortiesInscrit($participant);
 
-        // Si le participant est inscrit à des sorties ouvertes, on l'enlève de ces sorties
         if (!empty($sortiesInscritOuvertes)) {
             foreach ($sortiesInscritOuvertes as $sortie) {
                 $sortie->removeInscrit($participant);
             }
         }
 
-        // Vérifier si le participant est encore inscrit à d'autres sorties
         $autresSortiesInscrit = $sortieRepository->getSortiesInscrit($participant);
 
-        // Si le participant n'est inscrit à aucune autre sortie, le supprimer
         if (empty($autresSortiesInscrit)) {
             $entityManager->remove($participant);
             $entityManager->flush();
