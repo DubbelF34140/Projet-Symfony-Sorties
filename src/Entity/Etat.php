@@ -4,7 +4,7 @@ namespace App\Entity;
 
 use App\Repository\EtatRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\Groupes;
 
 #[ORM\Entity(repositoryClass: EtatRepository::class)]
 class Etat
@@ -15,7 +15,7 @@ class Etat
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['sortie:list'])]
+    #[Groupes(['sortie:list'])]
     private ?string $libelle = null;
 
     public function getId(): ?int

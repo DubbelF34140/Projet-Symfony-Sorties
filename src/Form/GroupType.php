@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Groups;
+use App\Entity\Groupes;
 use App\Entity\Participant;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -32,7 +32,7 @@ class GroupType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Groups::class,
+            'data_class' => Groupes::class,
         ]);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Groups;
+use App\Entity\Groupes;
 use App\Form\GroupType;
 use App\Repository\GroupsRepository;
 use App\Repository\ParticipantRepository;
@@ -35,11 +35,10 @@ class GroupsController extends AbstractController
             return $this->json(['message' => 'Le nom du groupe est requis'], 400);
         }
 
-        $group = new Groups();
+        $group = new Groupes();
         $group->setNom($data['nom']);
         $group->setOwner($this->getUser()); // L'utilisateur connecté est défini comme propriétaire
 
-        // Ajouter les participants au groupe
         if (isset($data['participants'])) {
             foreach ($data['participants'] as $participantId) {
                 $participant = $participantRepository->find($participantId);
@@ -60,7 +59,7 @@ class GroupsController extends AbstractController
     #[Route('/create', name: 'group_create', methods: ['GET'])]
     public function showCreateForm(): Response
     {
-        $group = new Groups();
+        $group = new Groupes();
         $form = $this->createForm(GroupType::class, $group);  // Utilisation correcte de createForm()
 
         return $this->render('group/create.html.twig', [
@@ -71,9 +70,8 @@ class GroupsController extends AbstractController
 
 
     #[Route('/{id}/edit', name: 'group_edit')]
-    public function edit(Request $request, Groups $group): Response
+    public function edit(Request $request, Groupes $group): Response
     {
-        // Vérifier que seul le propriétaire peut modifier le groupe
         if ($group->getOwner() !== $this->getUser()) {
             $this->addFlash('danger', 'Vous n\'êtes pas autorisé à modifier ce groupe.');
             return $this->redirectToRoute('group_list');
@@ -97,9 +95,8 @@ class GroupsController extends AbstractController
     }
 
     #[Route('/{id}/delete', name: 'group_delete')]
-    public function delete(Groups $group): Response
+    public function delete(Groupes $group): Response
     {
-        // Vérifier que seul le propriétaire peut supprimer le groupe
         if ($group->getOwner() !== $this->getUser()) {
             $this->addFlash('danger', 'Vous n\'êtes pas autorisé à supprimer ce groupe.');
             return $this->redirectToRoute('group_list');
@@ -124,21 +121,18 @@ class GroupsController extends AbstractController
     }
 
     #[Route('/{id}/remove-participant/{participantId}', name: 'group_remove_participant', methods: ['POST'])]
-    public function removeParticipant(Groups $group, int $participantId, ParticipantRepository $participantRepository): Response
+    public function removeParticipant(Groupes $group, int $participantId, ParticipantRepository $participantRepository): Response
     {
-        // Chercher le participant via l'ID
         $participant = $participantRepository->find($participantId);
 
         if (!$participant) {
             return $this->json(['message' => 'Participant non trouvé'], 404);
         }
 
-        // Vérifier si l'utilisateur connecté est le propriétaire du groupe
         if ($group->getOwner() !== $this->getUser()) {
             return $this->json(['message' => 'Non autorisé'], 403);
         }
 
-        // Retirer le participant du groupe
         $group->removeParticipant($participant);
         $this->entityManager->flush();
 
@@ -147,9 +141,8 @@ class GroupsController extends AbstractController
 
 
     #[Route('/{id}/add-participant', name: 'group_add_participant', methods: ['POST'])]
-    public function addParticipant(Request $request, Groups $group, ParticipantRepository $participantRepository): Response
+    public function addParticipant(Request $request, Groupes $group, ParticipantRepository $participantRepository): Response
     {
-        // Récupérer les données envoyées en JSON
         $data = json_decode($request->getContent(), true);
 
         if (!isset($data['participantId'])) {
@@ -158,14 +151,12 @@ class GroupsController extends AbstractController
 
         $participantId = $data['participantId'];
 
-        // Chercher le participant via l'ID
         $participant = $participantRepository->find($participantId);
 
         if (!$participant) {
             return $this->json(['message' => 'Participant non trouvé'], 404);
         }
 
-        // Ajouter le participant au groupe si l'utilisateur connecté est le propriétaire
         if ($group->getOwner() === $this->getUser()) {
             $group->addParticipant($participant);
             $this->entityManager->flush();

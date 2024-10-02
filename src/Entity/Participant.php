@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use App\Entity\Groups;
+use App\Entity\Groupes;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -29,7 +29,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[Assert\NotBlank(message: 'Le pseudo ne doit pas être vide')]
     #[ORM\Column(length: 255, unique: true)]
-    #[Groups(['sortie:list'])]
+    #[Groupes(['sortie:list'])]
     private ?string $pseudo = null;
 
     #[ORM\Column(nullable: true)]
@@ -82,9 +82,9 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     private Collection $PrivateParticipants;
 
     /**
-     * @var Collection<int, Groups>
+     * @var Collection<int, Groupes>
      */
-    #[ORM\ManyToMany(targetEntity: Groups::class, mappedBy: 'Groups')]
+    #[ORM\ManyToMany(targetEntity: Groupes::class, mappedBy: 'Groupes')]
     private Collection $groups;
 
     public function __construct()
@@ -318,14 +318,14 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Groups>
+     * @return Collection<int, Groupes>
      */
     public function getGroups(): Collection
     {
         return $this->groups;
     }
 
-    public function addGroup(Groups $group): static
+    public function addGroup(Groupes $group): static
     {
         if (!$this->groups->contains($group)) {
             $this->groups->add($group);
@@ -335,7 +335,7 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function removeGroup(Groups $group): static
+    public function removeGroup(Groupes $group): static
     {
         if ($this->groups->removeElement($group)) {
             $group->removeParticipant($this);

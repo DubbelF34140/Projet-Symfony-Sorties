@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\Groups;
+use App\Entity\Groupes;
 use App\Entity\Sortie;
 use App\Form\AnnulationType;
 use App\Form\SortieType;
@@ -13,10 +13,8 @@ use App\Repository\LieuRepository;
 use App\Repository\ParticipantRepository;
 use App\Repository\SortieRepository;
 use App\Repository\VilleRepository;
-use App\Service\SortieStatusService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -418,7 +416,7 @@ class SortieController extends AbstractController
 
 
     #[Route('/api/groups/{id}/participants', name: 'api_group_participants', methods: ['GET'])]
-    public function getGroupParticipants(Groups $group): JsonResponse
+    public function getGroupParticipants(Groupes $group): JsonResponse
     {
         $participants = $group->getParticipants();
 

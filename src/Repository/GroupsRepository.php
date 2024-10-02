@@ -2,26 +2,26 @@
 
 namespace App\Repository;
 
-use App\Entity\Groups;
+use App\Entity\Groupes;
 use App\Entity\Participant;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Groups>
+ * @extends ServiceEntityRepository<Groupes>
  */
 class GroupsRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Groups::class);
+        parent::__construct($registry, Groupes::class);
     }
 
     /**
      * Récupère tous les groupes dont l'utilisateur spécifié est le propriétaire (owner)
      *
      * @param Participant $user
-     * @return Groups[]
+     * @return Groupes[]
      */
     public function findByOwner(Participant $user): array
     {
@@ -34,7 +34,7 @@ class GroupsRepository extends ServiceEntityRepository
 
 
 //    /**
-//     * @return Groups[] Returns an array of Groups objects
+//     * @return Groupes[] Returns an array of Groupes objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -48,7 +48,7 @@ class GroupsRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Groups
+//    public function findOneBySomeField($value): ?Groupes
 //    {
 //        return $this->createQueryBuilder('g')
 //            ->andWhere('g.exampleField = :val')
