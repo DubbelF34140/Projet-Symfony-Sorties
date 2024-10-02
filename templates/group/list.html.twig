@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Groupes{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1>Liste des Groupes</h1>
+        <a href="{{ path('group_create') }}" class="btn btn-primary mb-3">Créer un nouveau groupe</a>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for group in groups %}
+                <tr>
+                    <td>{{ group.nom }}</td>
+                    <td>
+                        {% if group.owner == app.user %}
+                            <a href="{{ path('group_edit', {id: group.id}) }}" class="btn btn-secondary btn-sm">Modifier</a>
+                            <a href="{{ path('group_delete', {id: group.id}) }}" class="btn btn-danger btn-sm"
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce groupe ?');">Supprimer</a>
+                        {% else %}
+                            <span class="text-muted">Aucune action disponible</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">Aucun groupe disponible</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

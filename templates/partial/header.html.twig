@@ -17,6 +17,7 @@
                     {% else %}
                         <li class="nav-item"><a class="nav-link" href="{{ path('app_sortie') }}">Accueil</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ path('app_participant_edit', { id: app.user.id }) }}">Mon Profil</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ path('group_list') }}">Mes Groupes</a></li>
                     {% endif %}
                 {% endif %}
                 {% if is_granted('ROLE_ADMIN') %}

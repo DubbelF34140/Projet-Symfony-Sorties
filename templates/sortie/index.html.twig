@@ -216,7 +216,7 @@
                     </td>
                     <td>{{ sortie.dateHeureDebut|date('d/m/Y H:i') }}</td>
                     <td>{{ sortie.dateLimiteInscription|date('d/m/Y') }}</td>
-                    <td>{{ sortie.inscrits|length }} / {{ sortie.nbInscriptionMax }}</td>
+                    <td>{{ sortie.inscrits|length + sortie.PrivateParticipants|length }} / {{ sortie.nbInscriptionMax }}</td>
                     <td>{{ sortie.etat.libelle }}</td>
                     <td>
                         {% if app.user in sortie.inscrits %}
@@ -253,7 +253,7 @@
                             {% endif %}
 
                             {% if sortie.etat.libelle == 'Ouverte' %}
-                                {% if app.user in sortie.inscrits %}
+                                {% if app.user in sortie.inscrits or app.user in sortie.privateparticipants %}
                                     <a href="{{ path('app_sorties_desister', {id: sortie.id}) }}" class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Se désister">
                                         <i class="fas fa-user-minus"></i>
                                     </a>

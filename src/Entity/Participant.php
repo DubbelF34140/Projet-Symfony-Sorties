@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
+use App\Entity\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -81,9 +81,16 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Sortie::class, mappedBy: 'PrivateParticipants')]
     private Collection $PrivateParticipants;
 
+    /**
+     * @var Collection<int, Groups>
+     */
+    #[ORM\ManyToMany(targetEntity: Groups::class, mappedBy: 'Groups')]
+    private Collection $groups;
+
     public function __construct()
     {
         $this->PrivateParticipants = new ArrayCollection();
+        $this->groups = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -305,6 +312,33 @@ class Participant implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->PrivateParticipants->removeElement($privateParticipant)) {
             $privateParticipant->removePrivateParticipant($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Groups>
+     */
+    public function getGroups(): Collection
+    {
+        return $this->groups;
+    }
+
+    public function addGroup(Groups $group): static
+    {
+        if (!$this->groups->contains($group)) {
+            $this->groups->add($group);
+            $group->addParticipant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGroup(Groups $group): static
+    {
+        if ($this->groups->removeElement($group)) {
+            $group->removeParticipant($this);
         }
 
         return $this;

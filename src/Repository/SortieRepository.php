@@ -163,6 +163,8 @@ class SortieRepository extends ServiceEntityRepository
             ->addSelect('c')
             ->leftJoin('s.inscrits', 'i') // Fetch join pour les inscrits
             ->addSelect('i')
+            ->leftJoin('s.PrivateParticipants', 'p') // Fetch join pour les inscrits
+            ->addSelect('p')
             ->leftJoin('s.lieu', 'l') // Fetch join pour le lieu
             ->addSelect('l')
             ->leftJoin('l.ville', 'v') // Fetch join pour la ville du lieu

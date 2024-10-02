@@ -1,0 +1,138 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le Groupe{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1>Modifier le Groupe {{ group.nom }}</h1>
+
+        <h2 class="mt-4">Ajouter un participant</h2>
+        <input type="text" id="participant-autocomplete" class="form-control" placeholder="Rechercher un participant...">
+        <div id="autocomplete-results" class="list-group mt-2"></div>
+
+        <h2 class="mt-4">Participants actuels</h2>
+        <ul id="participants-list" class="list-group">
+            {% for participant in group.getParticipants() %}
+                <li class="list-group-item d-flex justify-content-between align-items-center" data-id="{{ participant.id }}">
+                    {{ participant.pseudo }}
+                    <button class="btn btn-danger btn-sm remove-participant-btn" data-id="{{ participant.id }}">Retirer</button>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a href="{{ path('group_list') }}" class="btn btn-secondary mt-3">Retour à la liste des groupes</a>
+    </div>
+{% endblock %}
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const autocompleteInput = document.getElementById('participant-autocomplete');
+            const autocompleteResults = document.getElementById('autocomplete-results');
+            const participantsList = document.getElementById('participants-list');  // Liste des participants du groupe
+
+            // Fonction pour effectuer la requête d'autocomplétion
+            autocompleteInput.addEventListener('input', function () {
+                const query = this.value;
+
+                if (query.length >= 2) {
+                    fetch(`/api/participants/search?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            autocompleteResults.innerHTML = '';
+                            data.forEach(participant => {
+                                const resultItem = document.createElement('a');
+                                resultItem.href = '#';
+                                resultItem.classList.add('list-group-item', 'list-group-item-action');
+                                resultItem.textContent = participant.pseudo;
+                                resultItem.dataset.id = participant.id;
+                                resultItem.addEventListener('click', function (e) {
+                                    e.preventDefault();
+                                    addParticipantToGroup(participant);
+                                });
+                                autocompleteResults.appendChild(resultItem);
+                            });
+                        });
+                }
+            });
+
+            // Fonction pour ajouter un participant au groupe
+            function addParticipantToGroup(participant) {
+                // Vérifier si le participant est déjà dans la liste
+                const existingItem = participantsList.querySelector(`[data-id="${participant.id}"]`);
+                if (existingItem) {
+                    return;  // Le participant est déjà dans la liste
+                }
+
+                // Envoyer une requête pour ajouter le participant au groupe via AJAX
+                fetch(`/groups/{{ group.id }}/add-participant`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ participantId: participant.id })  // Corrige la structure des données envoyées
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            // Créer l'élément de la liste
+                            const listItem = document.createElement('li');
+                            listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                            listItem.textContent = participant.pseudo;
+                            listItem.dataset.id = participant.id;
+
+                            // Créer le bouton de suppression
+                            const removeButton = document.createElement('button');
+                            removeButton.classList.add('btn', 'btn-danger', 'btn-sm', 'remove-participant-btn');
+                            removeButton.textContent = 'Retirer';
+                            removeButton.dataset.id = participant.id;
+                            removeButton.addEventListener('click', function () {
+                                removeParticipantFromGroup(participant.id, listItem);
+                            });
+
+                            // Ajouter le bouton de suppression à l'élément de la liste
+                            listItem.appendChild(removeButton);
+
+                            // Ajouter l'élément à la liste des participants
+                            participantsList.appendChild(listItem);
+
+                            console.log('Participant ajouté avec succès.');
+                        } else {
+                            console.log('Erreur lors de l\'ajout du participant.');
+                        }
+                    });
+            }
+
+            // Fonction pour retirer un participant du groupe
+            function removeParticipantFromGroup(participantId, listItem) {
+                // Envoyer une requête pour retirer le participant du groupe via AJAX
+                fetch(`/groups/{{ group.id }}/remove-participant/${participantId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json())
+                    .then(data => {
+                        if (data.message === 'Participant retiré avec succès') {
+                            console.log('Participant retiré avec succès.');
+                            listItem.remove();  // Retirer l'élément de la liste dans le DOM
+                        } else {
+                            console.log('Erreur lors du retrait du participant.');
+                        }
+                    })
+                    .catch(error => {
+                        console.log('Une erreur s\'est produite :', error);
+                    });
+            }
+
+            // Initialiser la suppression des participants existants
+            participantsList.querySelectorAll('.remove-participant-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const participantId = this.dataset.id;
+                    const listItem = this.closest('li');
+                    removeParticipantFromGroup(participantId, listItem);
+                });
+            });
+        });
+    </script>
+{% endblock %}

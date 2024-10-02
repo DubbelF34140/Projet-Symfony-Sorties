@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Groups;
 use App\Entity\Sortie;
 use App\Form\AnnulationType;
 use App\Form\SortieType;
 use App\Repository\CampusRepository;
 use App\Repository\EtatRepository;
+use App\Repository\GroupsRepository;
 use App\Repository\LieuRepository;
 use App\Repository\ParticipantRepository;
 use App\Repository\SortieRepository;
@@ -58,6 +60,8 @@ class SortieController extends AbstractController
         );
 
         $totalPages = max(1, ceil($sorties->getTotalItemCount() / 10));
+
+        dump($sorties);
 
         return $this->render('sortie/index.html.twig', [
             'sorties' => $sorties,
@@ -123,7 +127,7 @@ class SortieController extends AbstractController
 
         $user = $this->getUser();
 
-        if ($sortie->getInscrits()->contains($user)) {
+        if ($sortie->getInscrits()->contains($user) or $sortie->getPrivateParticipants()->contains($user)) {
             $this->addFlash('warning', 'Vous êtes déjà inscrit à cette sortie.');
             return $this->redirectToRoute('app_sortie');
         } elseif ($sortie->getInscrits()->count() == $sortie->getNbInscriptionMax()) {
@@ -151,12 +155,17 @@ class SortieController extends AbstractController
 
         $user = $this->getUser();
 
-        if (!$sortie->getInscrits()->contains($user)) {
+        if (!$sortie->getInscrits()->contains($user) and !$sortie->getPrivateParticipants()->contains($user)) {
             $this->addFlash('warning', 'Vous êtes déjà désinscrit à cette sortie.');
             return $this->redirectToRoute('app_sortie');
         }
 
-        $sortie->removeInscrit($user);
+        if ($sortie->getInscrits()->contains($user)){
+            $sortie->removeInscrit($user);
+        }elseif ($sortie->getPrivateParticipants()->contains($user)){
+            $sortie->removePrivateParticipant($user);
+        }
+
         $entityManager->persist($sortie);
         $entityManager->flush();
 
@@ -179,6 +188,7 @@ class SortieController extends AbstractController
             'sortie' => $sortie,
             'sessionId' => $session->getId(),
             'participants' => $sortie->getInscrits(),
+            'privateparticipants' => $sortie->getPrivateParticipants(),
         ]);
     }
 
@@ -356,8 +366,10 @@ class SortieController extends AbstractController
         $participant = $participantRepository->find($data['participantId']);
 
         if ($participant && !$sortie->getPrivateParticipants()->contains($participant)) {
+            if ($sortie->getInscrits()->contains($participant)){
+                $sortie->removeInscrit($participant);
+            }
             $sortie->addPrivateParticipant($participant);
-            $sortie->addInscrit($participant);
             $entityManager->flush();
             return new JsonResponse(['status' => 'Participant ajouté'], JsonResponse::HTTP_OK);
         }
@@ -378,6 +390,47 @@ class SortieController extends AbstractController
         }
 
         return new JsonResponse(['status' => 'Participant non trouvé ou déjà retiré'], JsonResponse::HTTP_BAD_REQUEST);
+    }
+
+
+    #[Route('/api/groups/search', name: 'api_groups_search', methods: ['GET'])]
+    public function searchGroups(Request $request, GroupsRepository $groupsRepository): JsonResponse
+    {
+        $user = $this->getUser();
+        $searchTerm = $request->query->get('q');
+
+        if (empty($searchTerm)) {
+            return $this->json([]);
+        }
+
+        $groups = $groupsRepository->searchByNameAndOwner($searchTerm, $user);
+
+        $results = [];
+        foreach ($groups as $group) {
+            $results[] = [
+                'id' => $group->getId(),
+                'nom' => $group->getNom(),
+            ];
+        }
+
+        return $this->json($results);
+    }
+
+
+    #[Route('/api/groups/{id}/participants', name: 'api_group_participants', methods: ['GET'])]
+    public function getGroupParticipants(Groups $group): JsonResponse
+    {
+        $participants = $group->getParticipants();
+
+        $results = [];
+        foreach ($participants as $participant) {
+            $results[] = [
+                'id' => $participant->getId(),
+                'pseudo' => $participant->getPseudo(),
+            ];
+        }
+
+        return $this->json($results);
     }
 
 
