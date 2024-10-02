@@ -175,7 +175,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="managePrivateGroupModalLabel">Gérer le groupe privé</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <a href="{{ path('app_sorties_detail', {id: sortie.id}) }}" class="btn-close" aria-label="Close"></a>
                 </div>
                 <div class="modal-body">
                     <!-- Champ d'autocomplétion pour ajouter des participants -->
@@ -197,7 +197,7 @@
                     </ul>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <a href="{{ path('app_sorties_detail', {id: sortie.id}) }}" class="btn btn-primary btn-sm">Fermer</a>
                 </div>
             </div>
         </div>
