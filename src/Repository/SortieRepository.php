@@ -25,7 +25,9 @@ class SortieRepository extends ServiceEntityRepository
             ->leftJoin('s.campus', 'c')
             ->addSelect('c')
             ->leftJoin('s.inscrits', 'i')
-            ->addSelect('i');
+            ->addSelect('i')
+            ->leftJoin('s.PrivateParticipants', 'p')
+            ->addSelect('p');
 
         if (!empty($filters['campus'])) {
             $qb->andWhere('s.campus = :campus')

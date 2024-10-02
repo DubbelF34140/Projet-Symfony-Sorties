@@ -59,8 +59,6 @@ class SortieController extends AbstractController
 
         $totalPages = max(1, ceil($sorties->getTotalItemCount() / 10));
 
-        dump($sorties);
-
         return $this->render('sortie/index.html.twig', [
             'sorties' => $sorties,
             'campuss' => $campuss,
