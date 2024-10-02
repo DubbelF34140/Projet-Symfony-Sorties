@@ -20,6 +20,28 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group mb-3">
+                    {{ form_label(form.ville, 'Ville', {'label_attr': {'class': 'form-label'}}) }}
+                    <div class="input-group">
+                        {{ form_widget(form.ville, {'attr': {'class': 'form-control', 'disabled': false}}) }}
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    {{ form_label(form.lieu, 'Lieu', {'label_attr': {'class': 'form-label'}}) }}
+                    <div class="input-group">
+                        {{ form_widget(form.lieu, {'attr': {'class': 'form-control', 'disabled': false}}) }}
+                        <a href="" class="btn btn-secondary" id="btAjouter" disabled="true">
+                            <i class="bi bi-arrow-left"></i> Ajouter un lieu
+                        </a>
+                    </div>
+                </div>
+                <div class="form-group form-check mb-3">
+                    {{ form_widget(form.present, {'attr': {'class': 'form-check-input', 'id': 'presentCheckbox'}}) }}
+                    {{ form_label(form.present, 'Je serai présent', {'label_attr': {'class': 'form-check-label', 'for': 'presentCheckbox'}}) }}
+                    <div class="text-danger">{{ form_errors(form.present) }}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
                     {{ form_label(form.nom, 'Nom de la sortie', {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
                     <div class="text-danger">{{ form_errors(form.nom) }}</div>
@@ -53,39 +75,6 @@
                     {{ form_label(form.infosSortie, 'Description et infos', {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.infosSortie, {'attr': {'class': 'form-control', 'rows': '4'}}) }}
                 </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="form-group mb-3">
-                    <label for="ville" class="form-label">Ville</label>
-                    <select id="ville" class="form-select">
-                        <option value="">Sélectionnez une ville</option>
-                        {% for ville in villes %}
-                            {% if ville.id == sortie.lieu.ville.id %}
-                                <option value="{{ ville.id }}" selected>{{ ville.nom }}</option>
-                            {% else %}
-                                <option value="{{ ville.id }}" >{{ ville.nom }}</option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group mb-3">
-                    {{ form_label(form.lieu, 'Lieu', {'label_attr': {'class': 'form-label'}}) }}
-                    <div class="input-group">
-                        {{ form_widget(form.lieu, {'attr': {'class': 'form-control'}}) }}
-                        <button type="button" class="btn btn-outline-secondary" id="addLieuButton" data-bs-toggle="modal" data-bs-target="#addLieuModal">
-                            <i class="bi bi-plus-lg"></i> Ajouter un lieu
-                        </button>
-                    </div>
-                </div>
-
-                <div class="form-group form-check mb-3">
-                    {{ form_widget(form.present, {'attr': {'class': 'form-check-input', 'id': 'presentCheckbox'}}) }}
-                    {{ form_label(form.present, 'Je serai présent', {'label_attr': {'class': 'form-check-label', 'for': 'presentCheckbox'}}) }}
-                    <div class="text-danger">{{ form_errors(form.present) }}</div>
-                </div>
-
             </div>
         </div>
 
@@ -143,16 +132,18 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const villeSelect = document.querySelector('#ville');
-            const lieuSelect = document.querySelector('#{{ form.lieu.vars.id }}'); // Sélecteur basé sur l'ID du widget lieu
+            const villeSelect = document.querySelector('#sortie_ville');
+            const lieuSelect = document.querySelector('#sortie_lieu');
             const sortie = {{ sortie ? sortie|json_encode : 'null' }}; // S'assure que sortie existe
 
-            if (sortie && sortie.lieu) {
-                const villeId = sortie.lieu.ville.id;
+            const btAjouter = document.getElementById('btAjouter')
+            const villeId = villeSelect.value;
+            const lieuId = lieuSelect.value;
+            btAjouter.setAttribute('disabled', 'false')
+            btAjouter.setAttribute('href', `/lieu/add/${villeId}`)
 
-                villeSelect.value = villeId;
-                document.getElementById('lieu_ville').value = villeId;
-
+            if(villeId){
+                // Charger les lieux correspondant à la ville présélectionnée
                 fetch(`/api/lieux/${villeId}`, {
                     method: 'GET',
                     headers: {
@@ -170,10 +161,46 @@
                             option.textContent = lieu.nom;
                             lieuSelect.appendChild(option);
                         });
-                        const lieuId = sortie.lieu.id;
+
+
+                        // Pré-sélectionner le lieu si un lieu est déjà associé à la sortie
                         lieuSelect.value = lieuId; // Pré-sélectionner le lieu
                     });
             }
+
+            // Si une sortie existe et qu'elle a un lieu, pré-sélectionne la ville et le lieu
+           /* if (sortie && sortie.lieu) {
+                const villeId = sortie.lieu.ville.id;
+
+                // Pré-sélectionner la ville au chargement
+                villeSelect.value = villeId;
+                document.getElementById('sortie_ville').value = villeId;
+
+                // Charger les lieux correspondant à la ville présélectionnée
+                fetch(`/api/lieux/${villeId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + '{{ sessionId }}',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        lieuSelect.innerHTML = '<option value="">Sélectionnez un lieu</option>';
+                        data.forEach(lieu => {
+                            const option = document.createElement('option');
+                            option.value = lieu.id;
+                            option.textContent = lieu.nom;
+                            lieuSelect.appendChild(option);
+                        });
+
+                        console.log(sortie);
+                        // Pré-sélectionner le lieu si un lieu est déjà associé à la sortie
+                        //const lieuId = sortie.lieu.id;
+                        //lieuSelect.value = lieuId; // Pré-sélectionner le lieu
+                    });
+            }*/
 
             villeSelect.addEventListener('change', function () {
                 const villeId = villeSelect.value;
@@ -198,6 +225,10 @@
                                 lieuSelect.appendChild(option);
                             });
                         });
+                    const btAjouter = document.getElementById('btAjouter')
+                    console.log('je suis là')
+                    btAjouter.setAttribute('disabled', 'false')
+                    btAjouter.setAttribute('href', `/lieu/add/${villeId}`)
                 } else {
                     lieuSelect.innerHTML = '<option value="">Sélectionnez une ville d\'abord</option>';
                 }

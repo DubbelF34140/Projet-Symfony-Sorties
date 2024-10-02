@@ -78,7 +78,17 @@ class SortieController extends AbstractController
         $lieus = $lieuRepository->findAll();
 
         $sortie = new Sortie();
+        if (!is_null($request->get('lieu_id'))) {
+            $sortie->setLieu($lieuRepository->find($request->get('lieu_id')));
+        }
+
         $form = $this->createForm(SortieType::class, $sortie);
+
+        if (!is_null($request->get('ville_id'))) {
+            $form->get('ville')->setData($villeRepository->find($request->get('ville_id')));
+        }
+
+
         $form->handleRequest($request);
 
 
@@ -108,7 +118,8 @@ class SortieController extends AbstractController
             'form' => $form->createView(),
             'villes' => $villes,
             'sessionId' => $session->getId(),
-            'sortie' => $sortie
+            'sortie' => $sortie,
+            //'ville' => $ville,
         ]);
     }
 

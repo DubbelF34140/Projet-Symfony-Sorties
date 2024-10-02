@@ -1,0 +1,170 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une sortie{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+    <h1>Ajouter un lieu</h1>
+
+    <div class="container mt-4" style="margin-bottom: 100px">
+        <div class="row">
+            <div class="col-6">
+                {{ form_start(form, {'attr': {'data-turbo': 'false', 'class': 'form-horizontal'}}) }}
+                <input type="hidden"   id="ville" name="ville" value={{ ville.nom }}>
+                <div class="form-group mb-3">
+                    {{ form_label(form.ville, 'Ville', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.ville, {'attr': {'class': 'form-control'}}) }}
+                    <div class="text-danger">{{ form_errors(form.ville) }}</div>
+                </div>
+                <div class="form-group mb-3">
+                    {{ form_label(form.nom, 'Nom du lieu', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+                    <div class="text-danger">{{ form_errors(form.nom) }}</div>
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form_label(form.rue, 'Rue', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.rue, {'attr': {'class': 'form-control datetimepicker'}}) }}
+                    <div class="text-danger">{{ form_errors(form.rue) }}</div>
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form_label(form.latitude, 'Latitude', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.latitude, {'attr': {'class': 'form-control datepicker'}}) }}
+                    <div class="text-danger">{{ form_errors(form.latitude) }}</div>
+                </div>
+
+                <div class="form-group mb-3">
+                    {{ form_label(form.longitude, 'Longitude', {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.longitude, {'attr': {'class': 'form-control'}}) }}
+                    <div class="text-danger">{{ form_errors(form.longitude) }}</div>
+                </div>
+                <button type="submit" name="save" class="btn btn-primary me-2">
+                    <i class="bi bi-save"></i> Ajouter
+                </button>
+                {{ form_end(form) }}
+            </div>
+
+            <!-- Carte de localisation (col-md-6 pour 50% de l'écran) -->
+            <div class="col-6" style="background-color: rgb(204,204,204);border-radius: 5px">
+                <div class="card-body">
+                    <h2 class="text-primary">Localisation</h2>
+                    <div id="map" style="height: 400px; width: 100%;" class="border rounded shadow-sm"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{#    <!-- Bootstrap JS (pour le bon fonctionnement des modals) -->#}
+{#    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>#}
+
+    <!-- Inclure Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+
+    <!-- Inclure Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const villeSelect = document.querySelector('#ville');
+            //const rueSelect = document.getElementsByName('form-control');
+            const rueInput = document.getElementById('lieu_rue');
+            console.log('rueInput ', rueInput)
+
+            const ville = villeSelect.value;
+            //console.log('ville', ville)
+            let q = "https://nominatim.openstreetmap.org/search?addressdetails=1&q="
+            q += `${ville}&format=jsonv2&limit=1`;
+            fetch(q, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'same-origin',
+            })
+                .then(response => response.json())
+                .then(data => {
+
+                    //Coordonnées latitude et longitude de la sortie
+                    if(data[0].lat && data[0].lon){
+                        let latitude = data[0].lat;
+                        let longitude = data[0].lon;
+                        console.log('lat/Long ds if', latitude,'/ ', longitude)
+                        // Initialisation de la carte
+                        const map = L.map('map').setView([latitude, longitude], 13);
+
+                        // Ajouter une couche de tuiles (carte de fond)
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '© OpenStreetMap'
+                        }).addTo(map);
+
+                        // Ajouter un marqueur aux coordonnées de la sortie
+                        L.marker([latitude, longitude]).addTo(map)
+                            .openPopup();
+                    }
+                });
+
+            villeSelect.addEventListener('change', function () {
+
+                const ville = villeSelect.value;
+                console.log('ville ', ville)
+            });
+
+            rueInput.addEventListener('change', function () {
+
+                const rue = rueInput.value;
+                console.log('rue ', rue)
+                var array = rue.split(" ");
+                // Charger les coordo via Ajax
+                let q = "https://nominatim.openstreetmap.org/search?addressdetails=1&q="
+                for(let i=0 ; i<array.length ; i++){
+                    q += `${array[i]}+`;
+                }
+                //console.log('q1 ', q)
+                q = q.substring(0,q.length-1);
+                q += `,+${ville}&format=jsonv2&limit=1`;
+                console.log('q2 ', q)
+                fetch(q, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('data ds rep', data)
+                        //Coordonnées latitude et longitude de la sortie
+                        if(data.length != 0){
+                            let latitude = data[0].lat;
+                            let longitude = data[0].lon;
+                            console.log('lat/Long ds if', latitude,'/ ', longitude)
+                            if(latitude && longitude){
+                                const lat = document.getElementById('lieu_latitude');
+                                const lon = document.getElementById('lieu_longitude');
+                                lat.value = latitude;
+                                lon.value = longitude;
+                            }
+                        } else {
+                            const lat = document.getElementById('lieu_latitude');
+                            const lon = document.getElementById('lieu_longitude');
+                            lat.value = 0;
+                            lon.value = 0;
+                        }
+                    });
+            });
+        });
+    </script>
+{% endblock %}

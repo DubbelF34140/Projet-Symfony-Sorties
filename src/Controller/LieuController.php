@@ -3,13 +3,18 @@
 namespace App\Controller;
 
 use App\Entity\Lieu;
+use App\Entity\Sortie;
 use App\Entity\Ville;
+use App\Form\LieuType;
+use App\Form\SortieType;
 use App\Repository\LieuRepository;
+use App\Repository\VilleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 class LieuController extends AbstractController
@@ -19,6 +24,38 @@ class LieuController extends AbstractController
     {
         return $this->render('lieu/index.html.twig', [
             'controller_name' => 'LieuController',
+        ]);
+    }
+
+    #[Route('/lieu/add/{idVille}', name: 'app_add_lieu', methods: ['GET', 'POST'])]
+    public function add(Request $request,
+                        int $idVille,
+                        EntityManagerInterface $entityManager,
+                        VilleRepository $villeRepository,
+                        SessionInterface $session): Response
+    {
+        dump($idVille);
+        $ville = $villeRepository->find($idVille);
+        $lieu = new Lieu();
+        $lieu->setVille($ville);
+        $form = $this->createForm(LieuType::class, $lieu);
+        $form->handleRequest($request);
+        dump($lieu);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($lieu);
+            $entityManager->flush();
+
+            $sortie = new Sortie();
+            $sortie->setLieu($lieu);
+            $form = $this->createForm(SortieType::class, $sortie);
+            $form->handleRequest($request);
+            return $this->redirectToRoute('app_sorties_create',
+                ['lieu_id' => $lieu->getId(), 'ville_id' => $ville->getId()]);
+        }
+        return $this->render('lieu/add.html.twig', [
+            'form' => $form->createView(),
+            'lieu' => $lieu,
+            'ville' => $ville,
         ]);
     }
 
