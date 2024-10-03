@@ -82,14 +82,23 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const villeSelect = document.querySelector('#ville');
-            //villeSelect.setAttribute('disabled', 'true');
             const rueInput = document.getElementById('lieu_rue');
-            console.log('rueInput ', rueInput)
+            const errorMessageDiv = document.createElement('div'); // Création d'un div pour les messages d'erreur
+            errorMessageDiv.style.color = 'red';
+            errorMessageDiv.style.marginTop = '10px';
+            rueInput.parentElement.appendChild(errorMessageDiv); // Ajout du div sous le champ de la rue
+
+            const showError = (message) => {
+                errorMessageDiv.textContent = message;
+            };
+
+            const clearError = () => {
+                errorMessageDiv.textContent = '';
+            };
 
             const ville = villeSelect.value;
-            console.log('ville', ville)
-            let q = "https://nominatim.openstreetmap.org/search?addressdetails=1&q="
-            q += `${ville}&format=jsonv2&limit=1`;
+            let q = `https://nominatim.openstreetmap.org/search?addressdetails=1&q=${ville}&format=jsonv2&limit=1`;
+
             fetch(q, {
                 method: 'GET',
                 headers: {
@@ -97,14 +106,18 @@
                 },
                 credentials: 'same-origin',
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erreur lors de la récupération des coordonnées.'); // Lancer une erreur si la requête échoue
+                    }
+                    return response.json();
+                })
                 .then(data => {
-
-                    //Coordonnées latitude et longitude de la sortie
-                    if(data[0].lat && data[0].lon){
+                    clearError(); // Effacer le message d'erreur s'il existe
+                    if (data.length > 0 && data[0].lat && data[0].lon) {
                         let latitude = data[0].lat;
                         let longitude = data[0].lon;
-                        console.log('lat/Long ds if', latitude,'/ ', longitude)
+
                         // Initialisation de la carte
                         const map = L.map('map').setView([latitude, longitude], 13);
 
@@ -115,58 +128,51 @@
                         }).addTo(map);
 
                         // Ajouter un marqueur aux coordonnées de la sortie
-                        L.marker([latitude, longitude]).addTo(map)
-                            .openPopup();
+                        L.marker([latitude, longitude]).addTo(map).openPopup();
+                    } else {
+                        showError('Impossible de récupérer les coordonnées pour cette ville.');
                     }
+                })
+                .catch(error => {
+                    console.error(error);
+                    showError('Une erreur est survenue lors de la récupération des coordonnées.');
                 });
 
-            villeSelect.addEventListener('change', function () {
-
-                const ville = villeSelect.value;
-                console.log('ville ', ville)
-            });
-
             rueInput.addEventListener('change', function () {
-
                 const rue = rueInput.value;
-                console.log('rue ', rue)
-                var array = rue.split(" ");
-                // Charger les coordo via Ajax
-                let q = "https://nominatim.openstreetmap.org/search?addressdetails=1&q="
-                for(let i=0 ; i<array.length ; i++){
-                    q += `${array[i]}+`;
-                }
-                //console.log('q1 ', q)
-                q = q.substring(0,q.length-1);
-                q += `,+${ville}&format=jsonv2&limit=1`;
-                console.log('q2 ', q)
-                fetch(q, {
+                const ville = villeSelect.value;
+                let query = `https://nominatim.openstreetmap.org/search?addressdetails=1&q=${encodeURIComponent(rue)}+${encodeURIComponent(ville)}&format=jsonv2&limit=1`;
+
+                fetch(query, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     credentials: 'same-origin',
                 })
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Erreur lors de la récupération des coordonnées pour la rue.');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
-                        console.log('data ds rep', data)
-                        //Coordonnées latitude et longitude de la sortie
-                        if(data.length != 0){
+                        clearError(); // Effacer le message d'erreur s'il existe
+                        if (data.length > 0 && data[0].lat && data[0].lon) {
                             let latitude = data[0].lat;
                             let longitude = data[0].lon;
-                            console.log('lat/Long ds if', latitude,'/ ', longitude)
-                            if(latitude && longitude){
-                                const lat = document.getElementById('lieu_latitude');
-                                const lon = document.getElementById('lieu_longitude');
-                                lat.value = latitude;
-                                lon.value = longitude;
-                            }
+
+                            const latInput = document.getElementById('lieu_latitude');
+                            const lonInput = document.getElementById('lieu_longitude');
+                            latInput.value = latitude;
+                            lonInput.value = longitude;
                         } else {
-                            const lat = document.getElementById('lieu_latitude');
-                            const lon = document.getElementById('lieu_longitude');
-                            lat.value = 0;
-                            lon.value = 0;
+                            showError('Impossible de récupérer les coordonnées pour cette rue.');
                         }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        showError('Une erreur est survenue lors de la récupération des coordonnées.');
                     });
             });
         });
