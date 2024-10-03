@@ -5,7 +5,6 @@ namespace App\Security;
 
 use App\Repository\ParticipantRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
@@ -39,19 +38,6 @@ class LoginSuccessHandler implements AuthenticationSuccessHandlerInterface
             ]));
         }
 
-        $sessionId = $request->getSession()->getId();
-        $cookie = Cookie::create('SESSID', $sessionId)
-        ->withHttpOnly(true);
-
-        $user2 = $this->participantRepository->findOneBy(['id' => $user->getId()]);
-        $user2->setSessionId($sessionId);
-
-        $this->entityManager->persist($user2);
-        $this->entityManager->flush();
-
-        $response = new RedirectResponse($this->router->generate('app_sortie'));
-        $response->headers->setCookie($cookie);
-
-        return $response;
+        return new RedirectResponse($this->router->generate('app_sortie'));
     }
 }

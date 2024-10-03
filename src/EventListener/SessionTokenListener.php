@@ -2,28 +2,60 @@
 
 namespace App\EventListener;
 
+use App\Repository\ParticipantRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpFoundation\Cookie;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
+use Symfony\Component\Security\Core\Security;
 
+#[AsEventListener(event: ResponseEvent::class, method: 'onKernelResponse')]
 class SessionTokenListener
 {
+    private $security;
+    private $participantRepository;
+    private $entityManager;
+    private $logger;
+
+    public function __construct(Security $security, ParticipantRepository $participantRepository, EntityManagerInterface $entityManager, LoggerInterface $logger) {
+        $this->security = $security;
+        $this->participantRepository = $participantRepository;
+        $this->entityManager = $entityManager;
+        $this->logger = $logger;
+    }
+
     public function onKernelResponse(ResponseEvent $event): void
     {
-        $response = $event->getResponse();
         $request = $event->getRequest();
+        $response = $event->getResponse();
+        $session = $request->getSession();
+        $user = $this->security->getUser();
 
-        if ($request->attributes->get('_route') === 'api_login' && $response->isSuccessful()) {
-            $session = $request->getSession();
+        if ($user && !$request->cookies->has('SESSID')) {
+            if (!$session->isStarted()) {
+                $session->start();
+            }
             $sessionId = $session->getId();
 
-            $cookie = Cookie::create('SESSID')
-                ->withValue($sessionId)
-                ->withPath('/')
-                ->withSecure(true)
-                ->withHttpOnly(true)
-                ->withSameSite('strict');
-
+            $cookie = new Cookie(
+                'SESSID',
+                $sessionId,
+                time() + 3600,
+                '/',
+                null,
+                false,
+                true,
+                false,
+                'Strict'
+            );
             $response->headers->setCookie($cookie);
+
+            $user2 = $this->participantRepository->findOneBy(['id' => $user->getId()]);
+            $user2->setSessionId($sessionId);
+
+            $this->entityManager->persist($user2);
+            $this->entityManager->flush();
         }
     }
 }
