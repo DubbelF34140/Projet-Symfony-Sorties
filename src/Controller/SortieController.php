@@ -220,6 +220,12 @@ class SortieController extends AbstractController
             } elseif ($request->request->has('publish')) {
                 $sortie->setEtat($etatRepository->findEtatPubliee());
             }
+            $present = $sortieForm->get('present')->getData();
+            if ($present) {
+                $sortie->addInscrit($this->getUser());
+            }else{
+                $sortie->removeInscrit($this->getUser());
+            }
             $em->flush();
             $this->addFlash('success', 'La sortie a été modifiée avec succès');
             return $this->redirectToRoute('app_sorties_detail', ['id' => $sortie->getId()]);
