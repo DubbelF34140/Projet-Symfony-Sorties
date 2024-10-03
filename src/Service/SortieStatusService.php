@@ -9,16 +9,22 @@ use Psr\Log\LoggerInterface;
 
 class SortieStatusService
 {
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    private EtatRepository $etatRepository;
+
+    private LoggerInterface $logger;
+
+    public function __construct(EntityManagerInterface $entityManager, EtatRepository $etatRepository, LoggerInterface $logger)
     {
         $this->entityManager = $entityManager;
+        $this->etatRepository = $etatRepository;
+        $this->logger = $logger;
     }
 
-    public function checkSortieStatus(LoggerInterface $logger, EtatRepository $etatRepository): void
+    public function checkSortieStatus(): void
     {
-        $logger->info('Checking sortie statuses');
+        $this->logger->info('Checking sortie statuses');
         $sorties = $this->entityManager->getRepository(Sortie::class)->findAll();
 
         foreach ($sorties as $sortie) {
@@ -28,9 +34,9 @@ class SortieStatusService
             $participants = $sortie->getInscrits()->count();
             $dateHeureDebut = $sortie->getDateHeureDebut();
 
-            $etatCloturee = $etatRepository->find($etatRepository->findEtatFinish());
+            $etatCloturee = $this->etatRepository->find($this->etatRepository->findEtatFinish());
             if ($etatCloturee === null) {
-                $logger->error('État "Clôturée" non trouvé dans la base de données.');
+                $this->logger->error('État "Clôturée" non trouvé dans la base de données.');
                 throw new \Exception('État "Clôturée" non trouvé.');
             }
 
@@ -39,9 +45,9 @@ class SortieStatusService
                 $this->entityManager->persist($sortie);
             }
 
-            $etatHistorise = $etatRepository->find($etatRepository->findEtatHistorise());
+            $etatHistorise = $this->etatRepository->find($this->etatRepository->findEtatHistorise());
             if ($etatHistorise === null) {
-                $logger->error('État "Historisé" non trouvé dans la base de données.');
+                $this->logger->error('État "Historisé" non trouvé dans la base de données.');
                 throw new \Exception('État "Historisé" non trouvé.');
             }
 

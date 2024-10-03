@@ -17,12 +17,11 @@ class AppCommandCheckSortieStatusCommand extends Command
     private $logger;
     private $etatRepository;
 
-    public function __construct(SortieStatusService $sortieStatusChecker, LoggerInterface $logger, EtatRepository $etatRepository)
+    public function __construct(SortieStatusService $sortieStatusChecker, LoggerInterface $logger)
     {
         parent::__construct();
         $this->sortieStatusChecker = $sortieStatusChecker;
         $this->logger = $logger;
-        $this->etatRepository = $etatRepository;
     }
 
     protected function configure()
@@ -33,7 +32,7 @@ class AppCommandCheckSortieStatusCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->logger->info('Lancement de la vérification des statuts des sorties');
-        $this->sortieStatusChecker->checkSortieStatus($this->logger, $this->etatRepository);
+        $this->sortieStatusChecker->checkSortieStatus();
         $output->writeln('Vérification des statuts des sorties terminée.');
 
         return Command::SUCCESS;
