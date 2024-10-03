@@ -56,6 +56,7 @@ class SortieRepository extends ServiceEntityRepository
 
         if (!empty($filters['inscrit'])) {
             $qb->andWhere(':user MEMBER OF s.inscrits')
+                ->orWhere(':user MEMBER OF s.PrivateParticipants')
                 ->setParameter('user', $filters['inscrit']);
         }
 
