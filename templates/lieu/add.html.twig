@@ -14,9 +14,13 @@
     <div class="container mt-4" style="margin-bottom: 100px">
         <div class="row">
             <div class="col-6">
+                <div class="form-group mb-3">
+                    <div >Ville</div>
+                    <div class="form-control">{{ ville.nom }}</div>
+                </div>
                 {{ form_start(form, {'attr': {'data-turbo': 'false', 'class': 'form-horizontal'}}) }}
                 <input type="hidden"   id="ville" name="ville" value={{ ville.nom }}>
-                <div class="form-group mb-3">
+                <div class="form-group mb-3" hidden="hidden">
                     {{ form_label(form.ville, 'Ville', {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(form.ville, {'attr': {'class': 'form-control'}}) }}
                     <div class="text-danger">{{ form_errors(form.ville) }}</div>
@@ -78,12 +82,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const villeSelect = document.querySelector('#ville');
-            //const rueSelect = document.getElementsByName('form-control');
+            //villeSelect.setAttribute('disabled', 'true');
             const rueInput = document.getElementById('lieu_rue');
             console.log('rueInput ', rueInput)
 
             const ville = villeSelect.value;
-            //console.log('ville', ville)
+            console.log('ville', ville)
             let q = "https://nominatim.openstreetmap.org/search?addressdetails=1&q="
             q += `${ville}&format=jsonv2&limit=1`;
             fetch(q, {
