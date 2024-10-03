@@ -118,15 +118,15 @@
                 {% if app.user in privateparticipants or sortie.organisateur.pseudo == app.user.pseudo %}
                             {% for p in privateparticipants %}
                                 <tr>
-                                    {% if(sortie.organisateur.pseudo == app.user.pseudo) %}
-                                        <td><input type="checkbox" class="select-participant" value="{{ p.email }}"></td>
-                                    {% endif %}
                                     <td>{{ p.pseudo }}</td>
                                     <td>
                                         <a href="{{ path('app_participant_view', {id: p.id}) }}" class="btn btn-primary btn-sm">
                                             <i class="fas fa-user"></i> Voir Profil
                                         </a>
                                     </td>
+                                    {% if(sortie.organisateur.pseudo == app.user.pseudo) %}
+                                        <td><input type="checkbox" class="select-participant" value="{{ p.email }}"></td>
+                                    {% endif %}
                                 </tr>
                             {% else %}
                                 <tr>
@@ -400,7 +400,6 @@
                 }).then(response => {
                     if (response.ok) {
                         console.log('Participant retiré');
-                        // Retirer l'élément de la liste
                         listItem.remove();
                     }
                 });
