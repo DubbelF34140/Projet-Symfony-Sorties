@@ -219,7 +219,7 @@
                     <td>{{ sortie.inscrits|length + sortie.PrivateParticipants|length }} / {{ sortie.nbInscriptionMax }}</td>
                     <td>{{ sortie.etat.libelle }}</td>
                     <td>
-                        {% if app.user in sortie.inscrits %}
+                        {% if app.user in sortie.inscrits or app.user in sortie.privateparticipants %}
                             <i class="fa fa-check text-success"></i>
                         {% else %}
                             <i class="fa fa-times text-danger"></i>
