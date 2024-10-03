@@ -307,7 +307,7 @@
                 <ul class="pagination justify-content-center">
                     {% if previousPage %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ path('app_sortie', { page: previousPage }) }}">Précédent</a>
+                            <a class="page-link" href="{{ path('app_sortie', app.request.query.all | merge({page: previousPage})) }}">Précédent</a>
                         </li>
                     {% else %}
                         <li class="page-item disabled">
@@ -317,13 +317,13 @@
 
                     {% for page in range(1, totalPages) %}
                         <li class="page-item {% if currentPage == page %}active{% endif %}">
-                            <a class="page-link" href="{{ path('app_sortie', { page: page }) }}">{{ page }}</a>
+                            <a class="page-link" href="{{ path('app_sortie', app.request.query.all | merge({page: page})) }}">{{ page }}</a>
                         </li>
                     {% endfor %}
 
                     {% if nextPage %}
                         <li class="page-item">
-                            <a class="page-link" href="{{ path('app_sortie', { page: nextPage }) }}">Suivant</a>
+                            <a class="page-link" href="{{ path('app_sortie', app.request.query.all | merge({page: nextPage})) }}">Suivant</a>
                         </li>
                     {% else %}
                         <li class="page-item disabled">
