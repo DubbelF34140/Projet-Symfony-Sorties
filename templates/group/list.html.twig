@@ -4,36 +4,48 @@
 
 {% block body %}
     <div class="container mt-5">
-        <h1>Liste des Groupes</h1>
-        <a href="{{ path('group_create') }}" class="btn btn-primary mb-3">Créer un nouveau groupe</a>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="display-4">Mes Groupes</h1>
+            <a href="{{ path('group_create') }}" class="btn btn-success btn-lg">
+                <i class="fas fa-plus-circle"></i> Créer un nouveau groupe
+            </a>
+        </div>
 
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for group in groups %}
+        <div class="table-responsive shadow-sm">
+            <table class="table table-hover table-bordered">
+                <thead class="table-dark">
                 <tr>
-                    <td>{{ group.nom }}</td>
-                    <td>
-                        {% if group.owner == app.user %}
-                            <a href="{{ path('group_edit', {id: group.id}) }}" class="btn btn-secondary btn-sm">Modifier</a>
-                            <a href="{{ path('group_delete', {id: group.id}) }}" class="btn btn-danger btn-sm"
-                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce groupe ?');">Supprimer</a>
-                        {% else %}
-                            <span class="text-muted">Aucune action disponible</span>
-                        {% endif %}
-                    </td>
+                    <th scope="col">Nom du Groupe</th>
+                    <th scope="col" class="text-center">Actions</th>
                 </tr>
-            {% else %}
-                <tr>
-                    <td colspan="4" class="text-center">Aucun groupe disponible</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                {% for group in groups %}
+                    <tr>
+                        <td class="align-middle">
+                            <strong>{{ group.nom }}</strong>
+                        </td>
+                        <td class="text-center">
+                            {% if group.owner == app.user %}
+                                <a href="{{ path('group_edit', {id: group.id}) }}" class="btn btn-warning btn-sm mx-1">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <a href="{{ path('group_delete', {id: group.id}) }}" class="btn btn-danger btn-sm mx-1"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce groupe ?');">
+                                    <i class="fas fa-trash-alt"></i> Supprimer
+                                </a>
+                            {% else %}
+                                <span class="text-muted">Aucune action disponible</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">Aucun groupe disponible</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

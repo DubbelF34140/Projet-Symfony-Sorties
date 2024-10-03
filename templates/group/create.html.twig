@@ -4,27 +4,38 @@
 
 {% block body %}
     <div class="container mt-5">
-        <h1>Créer un nouveau Groupe</h1>
+        <h1 class="text-center mb-4">Créer un nouveau Groupe</h1>
 
         <!-- Champ pour le nom du groupe -->
-        <div class="form-group">
-            <label for="group-name">Nom du groupe</label>
-            <input type="text" id="group-name" class="form-control" placeholder="Nom du groupe">
+        <div class="form-group mb-4">
+            <label for="group-name" class="form-label fw-bold">Nom du groupe</label>
+            <input type="text" id="group-name" class="form-control shadow-sm" placeholder="Entrez le nom du groupe..." style="border-radius: 8px; background-color: rgba(255, 255, 255, 0.8);">
         </div>
 
         <!-- Autocomplétion pour ajouter des participants -->
-        <h2 class="mt-4">Ajouter un participant</h2>
-        <input type="text" id="participant-autocomplete" class="form-control" placeholder="Rechercher un participant...">
-        <div id="autocomplete-results" class="list-group mt-2"></div>
+        <div class="mb-4">
+            <h2 class="h5 fw-bold mb-3">Ajouter un participant</h2>
+            <input type="text" id="participant-autocomplete" class="form-control shadow-sm" placeholder="Rechercher un participant..." style="border-radius: 8px; background-color: rgba(255, 255, 255, 0.8);">
+            <div id="autocomplete-results" class="list-group mt-2 shadow-sm" style="border-radius: 8px; height: 100px; overflow-y: auto;"></div>
+        </div>
 
-        <h2 class="mt-4">Participants ajoutés</h2>
-        <ul id="participants-list" class="list-group">
-            <!-- Les participants ajoutés apparaîtront ici -->
-        </ul>
+        <!-- Liste des participants ajoutés -->
+        <div class="mb-4">
+            <h2 class="h5 fw-bold mb-3">Participants ajoutés</h2>
+            <ul id="participants-list" class="list-group shadow-sm" style="border-radius: 8px; background-color: rgba(245, 245, 245, 0.8);">
+                <!-- Les participants ajoutés apparaîtront ici -->
+            </ul>
+        </div>
 
-        <button type="submit" class="btn btn-success mt-4" id="submit-group">Créer le Groupe</button>
-
-        <a href="{{ path('group_list') }}" class="btn btn-secondary mt-3">Retour à la liste des groupes</a>
+        <!-- Boutons d'action -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-success mt-4 px-5 py-2" id="submit-group" style="border-radius: 8px;">
+                <i class="fas fa-plus-circle"></i> Créer le Groupe
+            </button>
+            <a href="{{ path('group_list') }}" class="btn btn-secondary mt-4 px-5 py-2" style="border-radius: 8px;">
+                <i class="fas fa-arrow-left"></i> Retour à la liste des groupes
+            </a>
+        </div>
     </div>
 {% endblock %}
 
