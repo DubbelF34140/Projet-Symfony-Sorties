@@ -32,30 +32,33 @@ class SessionTokenListener
         $session = $request->getSession();
         $user = $this->security->getUser();
 
-        if ($user && !$request->cookies->has('SESSID')) {
-            if (!$session->isStarted()) {
-                $session->start();
+//        if ($user && !$request->cookies->has('SESSID')) {
+//            if (!$session->isStarted()) {
+//                $session->start();
+//            }
+//            $sessionId = $session->getId();
+//
+//            $cookie = new Cookie(
+//                'SESSID',
+//                $sessionId,
+//                time() + 3600,
+//                '/',
+//                null,
+//                false,
+//                true,
+//                false,
+//                'Strict'
+//            );
+//            $response->headers->setCookie($cookie);
+//        }
+
+        if($user) {
+            $user2 = $this->participantRepository->findOneBy(['email' => $user->getUserIdentifier()]);
+            if($user2->getSessionId() !== $session->getId()) {
+                $user2->setSessionId($session->getId());
+                $this->entityManager->persist($user2);
+                $this->entityManager->flush();
             }
-            $sessionId = $session->getId();
-
-            $cookie = new Cookie(
-                'SESSID',
-                $sessionId,
-                time() + 3600,
-                '/',
-                null,
-                false,
-                true,
-                false,
-                'Strict'
-            );
-            $response->headers->setCookie($cookie);
-
-            $user2 = $this->participantRepository->findOneBy(['id' => $user->getId()]);
-            $user2->setSessionId($sessionId);
-
-            $this->entityManager->persist($user2);
-            $this->entityManager->flush();
         }
     }
 }

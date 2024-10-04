@@ -16,14 +16,19 @@ class SessionTokenAuthenticator extends AbstractAuthenticator
 {
     public function supports(Request $request): ?bool
     {
-        return $request->cookies->has('SESSID');
+        return $request->cookies->has('PHPSESSID');
     }
 
     public function authenticate(Request $request): Passport
     {
-        $sessionId = $request->cookies->get('SESSID');
+        $sessionId = $request->cookies->get('PHPSESSID');
         if (null === $sessionId) {
             throw new AuthenticationException('No session token provided');
+        }
+
+        $user = $request->getSession()->get('_security_main');
+        if (!$user) {
+            throw new AuthenticationException('Invalid session token');
         }
 
         return new SelfValidatingPassport(new UserBadge($sessionId));
